@@ -64,7 +64,7 @@ import java.util.concurrent.TimeUnit
  * The window is one fixed-size measured card. The old widget stacked independently
  * animated speech, timer, and character columns, so its WRAP_CONTENT bounds changed
  * while acting and clipped the character. This composition keeps all renderable pixels
- * inside a stable 260dp x 184dp stage; touches outside the character still pass through.
+ * inside a stable compact 224dp x 146dp stage; touches outside the character still pass through.
  */
 @Composable
 fun OverlayRoot(controller: OverlayController) {
@@ -72,28 +72,28 @@ fun OverlayRoot(controller: OverlayController) {
     val character = state.character ?: return
     val director = controller.director
     val scope = rememberCoroutineScope()
-    val u = state.uiScale.coerceIn(0.78f, 1.18f)
-    val cardWidth = (260 * u).dp
-    val cardHeight = (184 * u).dp
+    val u = state.uiScale.coerceIn(0.82f, 1.06f)
+    val cardWidth = (224 * u).dp
+    val cardHeight = (146 * u).dp
 
     Column(
         modifier = Modifier
             .width(cardWidth)
             .height(cardHeight)
-            .clip(RoundedCornerShape((28 * u).dp))
-            .background(Color(0xF5111820))
-            .border(1.dp, Color(0xFFB7C6D8).copy(alpha = 0.18f), RoundedCornerShape((28 * u).dp))
-            .padding((12 * u).dp),
+            .clip(RoundedCornerShape((22 * u).dp))
+            .background(Color(0xC90D141B))
+            .border(1.dp, Color(0xFFB7C6D8).copy(alpha = 0.12f), RoundedCornerShape((22 * u).dp))
+            .padding((9 * u).dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            Box(Modifier.size((7 * u).dp).clip(CircleShape).background(Color(0xFFB9E86B)))
-            Spacer(Modifier.width((6 * u).dp))
-            Text("BUDDY LIVE", color = Color(0xFFB9E86B), fontSize = (9 * u).sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+            Box(Modifier.size((6 * u).dp).clip(CircleShape).background(Color(0xFFB9E86B)))
+            Spacer(Modifier.width((5 * u).dp))
+            Text("LIVE", color = Color(0xFFB9E86B), fontSize = (8 * u).sp, fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp)
             Spacer(Modifier.weight(1f))
-            Text("HOLD TO DISMISS", color = Color(0xFF8291A3), fontSize = (8 * u).sp, fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp)
+            Text("hold", color = Color(0xFF8291A3), fontSize = (8 * u).sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
         }
 
-        Spacer(Modifier.height((8 * u).dp))
+        Spacer(Modifier.height((3 * u).dp))
         Row(
             modifier = Modifier.fillMaxWidth().weight(1f),
             verticalAlignment = Alignment.CenterVertically,
@@ -116,16 +116,16 @@ fun OverlayRoot(controller: OverlayController) {
             )
         }
 
-        Spacer(Modifier.height((4 * u).dp))
+        Spacer(Modifier.height((2 * u).dp))
         Text(
-            state.dialogueLine ?: "tap me for a reaction · hold me to leave",
+            state.dialogueLine ?: "tap for a reaction · hold to leave",
             modifier = Modifier.fillMaxWidth(),
             color = if (state.dialogueLine != null) Color(0xFFF2F5F7) else Color(0xFF8291A3),
-            fontSize = (10 * u).sp,
-            lineHeight = (13 * u).sp,
+            fontSize = (9 * u).sp,
+            lineHeight = (11 * u).sp,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
-            maxLines = 2,
+            maxLines = 1,
         )
     }
 }
@@ -142,7 +142,7 @@ fun BuddyTimerCard(
     scale: Float = 1f,
     onCycleFlip: () -> Unit = {},
 ) {
-    val ts = (19 * scale).sp
+    val ts = (16 * scale).sp
     when (mode) {
         TimerMode.SESSION_ONLY -> TimerView("SESSION", formatSession(sessionMs), sessionAccent, valueSize = ts)
         TimerMode.STACKED -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -182,18 +182,18 @@ fun BuddyTimerCard(
 private fun TimerView(label: String, value: String, accent: Color, showLabels: Boolean = true, valueSize: androidx.compose.ui.unit.TextUnit = 19.sp) {
     Box(
         modifier = Modifier
-            .widthIn(min = 92.dp, max = 108.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xF2141720))
-            .border(1.dp, accent.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
-            .padding(horizontal = 10.dp, vertical = 6.dp),
+            .widthIn(min = 86.dp, max = 98.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color(0xB8141B24))
+            .border(1.dp, accent.copy(alpha = 0.22f), RoundedCornerShape(10.dp))
+            .padding(horizontal = 7.dp, vertical = 4.dp),
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             if (showLabels) {
                 Text(
                     text = label,
                     color = Color(0xFF8B96A5),
-                    fontSize = 8.sp,
+                    fontSize = 7.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.2.sp,
                 )
@@ -202,11 +202,11 @@ private fun TimerView(label: String, value: String, accent: Color, showLabels: B
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
-                        .size(5.dp)
+                        .size(4.dp)
                         .clip(CircleShape)
                         .background(accent),
                 )
-                Spacer(Modifier.width(5.dp))
+                Spacer(Modifier.width(4.dp))
                 Text(
                     text = value,
                     color = accent,
@@ -251,10 +251,10 @@ private fun HoldableBuddy(
     scale: Float,
 ) {
     val character = state.character ?: return
-    val buddySize = (112 * scale).dp
-    val ringSize = (120 * scale).dp
-    val boxW = (128 * scale).dp
-    val boxH = (116 * scale).dp
+    val buddySize = (82 * scale).dp
+    val ringSize = (90 * scale).dp
+    val boxW = (98 * scale).dp
+    val boxH = (88 * scale).dp
     var holding by remember { mutableStateOf(false) }
     var completed by remember { mutableStateOf(false) }
     // pointerInput is keyed only by hold duration, so callbacks must read the
