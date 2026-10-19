@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import com.doombuddy.character.CharacterPose
 import com.doombuddy.character.characterDraw
 import com.doombuddy.data.TimerMode
+import com.doombuddy.ui.components.MiniCharacter3D
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
@@ -293,10 +294,14 @@ private fun HoldableBuddy(
         Box(
             modifier = Modifier
                 .size(buddySize)
-                .characterDraw(character) {
-                    director?.pose?.takeIf { it.alpha > 0.02f }
-                        ?: CharacterPose(alpha = 1f, accessory = state.accessory)
-                }
+                .then(
+                    if (character.modelAsset == null) {
+                        Modifier.characterDraw(character) {
+                            director?.pose?.takeIf { it.alpha > 0.02f }
+                                ?: CharacterPose(alpha = 1f, accessory = state.accessory)
+                        }
+                    } else Modifier
+                )
                 .pointerInput(state.holdDurationMs) {
                     detectTapGestures(
                         onPress = {
@@ -325,6 +330,9 @@ private fun HoldableBuddy(
                     )
                 },
         )
+        if (character.modelAsset != null) {
+            MiniCharacter3D(character, Modifier.matchParentSize(), state.moodLevel)
+        }
 
         AnimatedVisibility(
             visible = holding && ringProgress > 0.08f && ringProgress < 1f,

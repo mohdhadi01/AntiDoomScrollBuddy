@@ -49,7 +49,7 @@ import com.doombuddy.ui.components.AnimatedCharacter
 import com.doombuddy.ui.onboarding.KnownApps
 import kotlinx.coroutines.launch
 
-private val LaunchCharacters = listOf(CharacterRoster.MELT, CharacterRoster.ZOBO, CharacterRoster.QUACKLES)
+private val LaunchCharacters = CharacterRoster.ALL
 
 @Composable
 fun SettingsScreen(prefs: PrefsRepository, onBack: () -> Unit) {

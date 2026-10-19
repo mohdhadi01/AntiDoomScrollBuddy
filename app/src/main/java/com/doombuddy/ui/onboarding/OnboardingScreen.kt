@@ -74,7 +74,7 @@ import kotlinx.coroutines.launch
 private const val STEPS = 8
 
 /** The launch trio: every new buddy can be picked here without a hidden roster. */
-private val LaunchCharacters = listOf(CharacterRoster.MELT, CharacterRoster.ZOBO, CharacterRoster.QUACKLES)
+private val LaunchCharacters = CharacterRoster.ALL
 
 @Composable
 fun OnboardingScreen(prefs: PrefsRepository, onDone: () -> Unit) {
@@ -207,7 +207,7 @@ private fun CharacterStep(prefs: PrefsRepository, onNext: () -> Unit) {
     val characterId = chosenId ?: selected?.characterId ?: "melt"
     val character = CharacterRoster.byId(characterId)
 
-    StepScaffold(title = "Pick your buddy", subtitle = "Three launch characters. One of them is about to become your favorite notification.") {
+    StepScaffold(title = "Pick your buddy", subtitle = "Ten animated 3D crew members. Pick the one you want interrupting your scroll.") {
         Box(
             Modifier.weight(1f).fillMaxWidth().clip(MaterialTheme.shapes.extraLarge).background(MaterialTheme.colorScheme.surface),
             contentAlignment = Alignment.Center,

@@ -10,6 +10,10 @@ data class CharacterDefinition(
     val id: String,
     val displayName: String,
     val species: Species,
+    /** Asset path under app/src/main/assets/characters, when this is a real 3D buddy. */
+    val modelAsset: String? = null,
+    /** Drawable portrait used for lightweight roster thumbnails. */
+    val portraitName: String? = null,
     val personality: Personality,
     val tagline: String,
     val palette: Palette,

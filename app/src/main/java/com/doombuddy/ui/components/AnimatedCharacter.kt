@@ -31,6 +31,19 @@ fun AnimatedCharacter(
     animated: Boolean = true,
     onPoke: () -> Unit = {},
 ) {
+    if (definition.modelAsset != null) {
+        if (!animated) {
+            MiniCharacterPortrait(definition, modifier)
+        } else {
+            val liveModifier = if (interactive) {
+                modifier.pointerInput(definition.id) {
+                    detectTapGestures { onPoke() }
+                }
+            } else modifier
+            MiniCharacter3D(definition, liveModifier, moodLevel, onPoke)
+        }
+        return
+    }
     // Static mode: fixed cute pose, ZERO animation loops. Pickers/rosters render many
     // buddies at once — one frame loop per card is real battery/jank cost.
     if (!animated) {

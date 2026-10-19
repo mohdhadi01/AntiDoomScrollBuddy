@@ -2,10 +2,10 @@
 
 ## Decision
 
-DoomBuddy V1 uses a native Compose `Canvas` renderer as its 2.5D runtime instead of a
-third-party animation package or a real-time 3D engine. The new cast is humanoid/toy-like
-with clothing, articulated limbs, staged props, material lighting, and bounded acting
-poses; it is no longer a bubble/blob character rig.
+DoomBuddy V1 uses local GLB models rendered by Google Filament. The Android app uses the
+same models in the selector, preview, and floating overlay. A small portrait fallback is
+used only for roster thumbnails so ten character previews do not create ten GPU scenes at
+once.
 
 This is deliberate: the overlay must start quickly, remain lightweight over another app,
 work offline, and survive Android process/window recreation. A small procedural renderer
@@ -17,7 +17,7 @@ specular highlights, silhouettes, props, particles, and animated facial features
 | Option | Strength | Why it is not V1 |
 |---|---|---|
 | Blender sprite sheets | Highest art direction and predictable overlay cost | Requires an external render/export pipeline and larger binary assets |
-| Licensed 3D pack + runtime renderer | Real mesh depth and reusable source models | Online CC0 packs reviewed for this build are static source models, not ready-to-ship Android character performances |
+| Licensed 3D pack + runtime renderer | Real mesh depth, skinning, and authored clips | More native memory and APK size than procedural Canvas |
 | Rive | Strong state machines and authoring workflow | Adds runtime/licensing/dependency surface and still needs an art production pipeline |
 | Lottie | Good for authored vector motion | Less suitable for interactive, timer-aware character acting |
 | Native Compose Canvas | Offline, small, deterministic, interactive, easy to test | Requires engineering the rig and drawing routines |
@@ -25,11 +25,13 @@ specular highlights, silhouettes, props, particles, and animated facial features
 
 ## V1 roster
 
-The launch roster is intentionally three characters with shared presentation rules:
+The launch roster is ten characters with shared presentation rules:
 
-- **Marlow** — a slouched hoodie-wearing couch regular; lazy and sarcastic.
-- **Orbit** — a compact astronaut with visor, life-support panel, and antenna signal; curious and confused.
-- **Riff** — a street-skater with a board, bright jacket, and unstable confidence; energetic and dramatic.
+- Marlow, Orbit, Riff, Nova, Pixel, Luma, Jet, Sage, Echo, and Moss.
+
+The pack's clips are real GLB animations. The Filament view rotates through idle, walk,
+jump, sit, and emote clips as the companion remains visible. The timer/message state stays
+separate from animation playback so an animation finishing cannot dismiss the intervention.
 
 Each definition supplies its palette, proportions, personality, dialogue banks, and
 species-specific details. The renderer owns no product logic. `CharacterDirector` owns

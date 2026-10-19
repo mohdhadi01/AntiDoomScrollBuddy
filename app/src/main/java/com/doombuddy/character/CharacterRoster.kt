@@ -3,114 +3,74 @@ package com.doombuddy.character
 import androidx.compose.ui.graphics.Color
 
 /**
- * V1 launch cast. These are deliberately humanoid/toy-like rather than blobs:
- * every buddy has a head, clothing, limbs, footwear, a readable silhouette, and a
- * prop that makes the acting legible at overlay size.
+ * Ten real rigged 3D characters from Kenney's Mini Characters pack.
  *
- * The IDs remain stable for existing installs; changing a buddy is therefore a
- * visual/content replacement, not a preference migration.
+ * The models are local GLB assets with embedded materials and animation clips. They are
+ * intentionally presented as a crew with original names/copy; the art is not represented
+ * as Minions or any other copyrighted franchise.
  */
 object CharacterRoster {
-    val MELT = CharacterDefinition(
-        id = "melt",
-        displayName = "Marlow",
+    private fun crew(
+        id: String,
+        name: String,
+        asset: String,
+        personality: Personality,
+        tagline: String,
+        top: Color,
+        bottom: Color,
+        belly: Color,
+        accent: Color,
+        portrait: String,
+        dialogue: DialogueBank,
+    ) = CharacterDefinition(
+        id = id,
+        displayName = name,
         species = Species.HUMANOID,
-        personality = Personality.LAZY,
-        tagline = "The couch has a point.",
+        modelAsset = asset,
+        portraitName = portrait,
+        personality = personality,
+        tagline = tagline,
         palette = Palette(
-            bodyTop = Color(0xFFB8A4F5),
-            bodyBottom = Color(0xFF5D4A9C),
-            belly = Color(0xFFFFD7C5),
-            pupil = Color(0xFF242133),
-            blush = Color(0xFFFF9FAD),
-            accent = Color(0xFFF3C86B),
-            shadow = Color(0x55251A3A),
+            bodyTop = top,
+            bodyBottom = bottom,
+            belly = belly,
+            pupil = Color(0xFF1E2430),
+            blush = Color(0xFFFF9C9C),
+            accent = accent,
+            shadow = Color(0x55323A48),
         ),
-        proportions = Proportions(bodyWidth = 0.72f, bodyHeight = 0.9f, eyeSize = 0.07f),
-        accessory = Accessory.HAT,
-        dialogue = DialogueBank(
-            peek = listOf("Oh. You.", "The couch misses you."),
-            speak = listOf("Still scrolling?", "That was one video."),
-            clocking = listOf("The clock is judging us.", "Five minutes became a lifestyle."),
-            ridiculous = listOf("I brought a blanket. Obviously.", "I have fully moved in."),
-            fedUp = listOf("I am sitting down harder.", "Marlow requests a plot twist."),
-            gaveUp = listOf("Wake me when the scroll ends.", "I will be over here. Existing."),
-            rapidReopen = listOf("That was a quick escape.", "Back already? Bold."),
-            longSession = listOf("I have become one with the upholstery."),
-            celebration = listOf("We are free. Briefly.", "A beautiful exit."),
-            dismissed = listOf("Fine. Five more minutes.", "I saw that."),
-            lateNight = listOf("The blanket says sleep."),
-            todayMilestone = listOf("That is a lot of today.", "The couch is concerned."),
-        ),
+        proportions = Proportions(bodyWidth = 0.72f, bodyHeight = 0.92f),
+        accessory = Accessory.NONE,
+        dialogue = dialogue,
     )
 
-    val ZOBO = CharacterDefinition(
-        id = "zobo",
-        displayName = "Orbit",
-        species = Species.ASTRONAUT,
-        personality = Personality.CONFUSED,
-        tagline = "Mission control is concerned.",
-        palette = Palette(
-            bodyTop = Color(0xFF8EE4D0),
-            bodyBottom = Color(0xFF237A83),
-            belly = Color(0xFFD8F7F2),
-            pupil = Color(0xFF102B39),
-            blush = Color(0xFF84D8E9),
-            accent = Color(0xFFFFD36B),
-            shadow = Color(0x55306E77),
-        ),
-        proportions = Proportions(bodyWidth = 0.68f, bodyHeight = 0.96f, eyeSize = 0.075f),
-        accessory = Accessory.ANTENNAE,
-        dialogue = DialogueBank(
-            peek = listOf("Signal acquired.", "Hello, Earth person."),
-            speak = listOf("What is the mission here?", "Is this still the same video?"),
-            clocking = listOf("Elapsed time is becoming suspicious.", "Mission timer says: too much."),
-            ridiculous = listOf("I am documenting this for science.", "The screen has gravity."),
-            fedUp = listOf("Mission control says log off.", "This is not in the flight plan."),
-            gaveUp = listOf("Returning to orbit.", "I will float here quietly."),
-            rapidReopen = listOf("The human returned.", "A fascinating pattern."),
-            longSession = listOf("My report has become a novel."),
-            celebration = listOf("Successful re-entry!", "Earth mission complete."),
-            dismissed = listOf("Acknowledged. Temporarily.", "I will be watching the stars."),
-            lateNight = listOf("Night cycle detected. Please power down."),
-            todayMilestone = listOf("Today total exceeds flight protocol.", "I have questions about this planet."),
-        ),
+    private fun lines(first: String, clock: String, long: String, dismiss: String) = DialogueBank(
+        peek = listOf("Oh. Hi.", "You again."),
+        speak = listOf(first, "Still scrolling?"),
+        clocking = listOf(clock, "The timer has entered the chat."),
+        ridiculous = listOf("I have a plan. It is mostly standing here.", "This is now a team activity."),
+        fedUp = listOf("We need a meeting about this.", "I am escalating artistically."),
+        gaveUp = listOf("I live here now.", "Wake me when the scroll ends."),
+        rapidReopen = listOf("That was a short escape.", "Back already?"),
+        longSession = listOf(long),
+        celebration = listOf("We escaped!", "A beautiful exit."),
+        dismissed = listOf(dismiss, "Fine. I will be around."),
+        lateNight = listOf("Night mode says sleep."),
+        todayMilestone = listOf("That is a lot of today.", "The total has opinions."),
     )
 
-    val QUACKLES = CharacterDefinition(
-        id = "quackles",
-        displayName = "Riff",
-        species = Species.SKATER,
-        personality = Personality.CHAOTIC,
-        tagline = "No brakes. Many opinions.",
-        palette = Palette(
-            bodyTop = Color(0xFFFFC56B),
-            bodyBottom = Color(0xFFE05A3F),
-            belly = Color(0xFFFFE7B6),
-            pupil = Color(0xFF362018),
-            blush = Color(0xFFFF8B6B),
-            accent = Color(0xFF4BD4C6),
-            shadow = Color(0x554C241B),
-        ),
-        proportions = Proportions(bodyWidth = 0.76f, bodyHeight = 0.92f, eyeSize = 0.073f),
-        accessory = Accessory.HAIR_SWIRL,
-        dialogue = DialogueBank(
-            peek = listOf("Wait. We are still here?", "I have a theory."),
-            speak = listOf("One more, then we go.", "This scroll has momentum."),
-            clocking = listOf("The timer is doing numbers!", "We missed the exit ramp."),
-            ridiculous = listOf("I brought wheels.", "I am solving this with speed."),
-            fedUp = listOf("Emergency dramatic reaction!", "I have fallen and blamed the app."),
-            gaveUp = listOf("I am horizontal now.", "No thoughts. Just floor."),
-            rapidReopen = listOf("WE WERE JUST HERE!", "The comeback is immediate!"),
-            longSession = listOf("My knees have filed a complaint."),
-            celebration = listOf("WE ESCAPED!", "Kickflip out!"),
-            dismissed = listOf("Okay okay, I am going.", "That was almost a trick."),
-            lateNight = listOf("The skatepark is closed. Go sleep."),
-            todayMilestone = listOf("That total needs a helmet.", "Today just did a backflip."),
-        ),
-    )
+    val MELT = crew("melt", "Marlow", "male_a.glb", Personality.LAZY, "Professional pause button.", Color(0xFFB9A8D6), Color(0xFF5E4D7C), Color(0xFFF1D3C2), Color(0xFFF0B365), "mini_male_a", lines("We are really doing this?", "Five minutes became a lifestyle.", "I have become one with the couch.", "Fine. I saw that."))
+    val ZOBO = crew("zobo", "Orbit", "male_b.glb", Personality.CONFUSED, "Mission control is concerned.", Color(0xFF8ED1E4), Color(0xFF315C88), Color(0xFFD9EDF0), Color(0xFFF4CF71), "mini_male_b", lines("What is the mission here?", "Elapsed time is suspicious.", "My report has become a novel.", "Acknowledged. Temporarily."))
+    val QUACKLES = crew("quackles", "Riff", "male_c.glb", Personality.CHAOTIC, "No brakes. Many opinions.", Color(0xFFF4B36C), Color(0xFFB54B46), Color(0xFFFFE2B1), Color(0xFF52D1C3), "mini_male_c", lines("One more, then we go.", "We missed the exit ramp.", "My knees filed a complaint.", "Okay okay, I am going."))
+    val NOVA = crew("nova", "Nova", "male_d.glb", Personality.DRAMATIC, "Makes every minute cinematic.", Color(0xFFE18CA7), Color(0xFF6D3B64), Color(0xFFFFD4CF), Color(0xFFFFD166), "mini_male_d", lines("Roll the opening credits.", "The plot is getting long.", "This episode needs an ending.", "Cut! We are done here."))
+    val PIXEL = crew("pixel", "Pixel", "male_e.glb", Personality.PLAYFUL, "One more level, allegedly.", Color(0xFF8EC6A4), Color(0xFF3A756A), Color(0xFFE7F1D5), Color(0xFF83D8F4), "mini_male_e", lines("Was that a side quest?", "Achievement unlocked: still here.", "I have lost the main storyline.", "Saving progress. Bye."))
+    val LUMA = crew("luma", "Luma", "female_a.glb", Personality.SWEET, "Gentle nudge, excellent timing.", Color(0xFFE9A1B7), Color(0xFF834B71), Color(0xFFFFDFD2), Color(0xFFBDA6FF), "mini_female_a", lines("Want to take a tiny break?", "That timer is getting brave.", "We have had a very full day.", "Okay. I will miss you."))
+    val JET = crew("jet", "Jet", "female_b.glb", Personality.CHAOTIC, "Runs on momentum.", Color(0xFFE6BE75), Color(0xFF735D40), Color(0xFFFFE6BE), Color(0xFF65D5B6), "mini_female_b", lines("I was only checking one thing!", "The scroll has acceleration.", "I may need a pit crew.", "That was a clean getaway."))
+    val SAGE = crew("sage", "Sage", "female_c.glb", Personality.DEADPAN, "Quietly taking notes.", Color(0xFFB6C6D8), Color(0xFF496478), Color(0xFFE4EFF3), Color(0xFFE5B96D), "mini_female_c", lines("Interesting choice.", "The data is becoming personal.", "I have several notes.", "Noted. See you soon."))
+    val ECHO = crew("echo", "Echo", "female_d.glb", Personality.MISCHIEVOUS, "Has seen this loop before.", Color(0xFFB9A2DF), Color(0xFF55417E), Color(0xFFF3D9D4), Color(0xFF79D4E0), "mini_female_d", lines("Was that the same clip?", "The loop is looping.", "I have memorized the feed.", "I will pretend not to notice."))
+    val MOSS = crew("moss", "Moss", "female_e.glb", Personality.CHILL, "A tiny calm interruption.", Color(0xFFA8D6A5), Color(0xFF4D7556), Color(0xFFE0EACB), Color(0xFFF3C874), "mini_female_e", lines("Soft reset?", "Time is doing its thing.", "Even my patience is buffering.", "Go on. I will be here."))
 
-    val ALL: List<CharacterDefinition> = listOf(MELT, ZOBO, QUACKLES)
+    val ALL: List<CharacterDefinition> = listOf(MELT, ZOBO, QUACKLES, NOVA, PIXEL, LUMA, JET, SAGE, ECHO, MOSS)
 
     fun byId(id: String): CharacterDefinition = ALL.firstOrNull { it.id == id } ?: MELT
 }

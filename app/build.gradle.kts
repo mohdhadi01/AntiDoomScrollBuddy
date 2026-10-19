@@ -92,6 +92,11 @@ dependencies {
 
     implementation(libs.datastore.preferences)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.filament.android)
+    implementation(libs.filament.gltfio)
+    implementation(libs.filament.utils)
+    implementation(libs.kotlin.stdlib.jdk7)
+    implementation(libs.kotlin.stdlib.jdk8)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
