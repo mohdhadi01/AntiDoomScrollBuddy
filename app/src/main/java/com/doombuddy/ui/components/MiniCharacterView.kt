@@ -13,8 +13,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import com.doombuddy.R
 import com.doombuddy.character.CharacterDefinition
 import com.doombuddy.character.CharacterPose
 import com.doombuddy.character.MouthShape
@@ -159,16 +159,10 @@ fun MiniCharacter3D(
 
 @Composable
 fun MiniCharacterPortrait(definition: CharacterDefinition, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
     val name = definition.portraitName
-    val resId = remember(name, context.packageName) {
-        runCatching {
-            name
-                ?.takeIf { it.isNotBlank() }
-                ?.let { context.resources.getIdentifier(it, "drawable", context.packageName) }
-                ?: 0
-        }.getOrDefault(0)
-    }
+    // Keep direct resource references here. Dynamic getIdentifier() lookups are invisible to
+    // release resource shrinking and can leave every portrait blank in the production APK.
+    val resId = remember(name) { portraitResourceId(name) }
 
     // Resource names are metadata and may be stale after a resource split or an asset
     // rename. Never leave a roster slot blank just because the optional portrait is absent.
@@ -183,6 +177,20 @@ fun MiniCharacterPortrait(definition: CharacterDefinition, modifier: Modifier = 
     }
 
     ProceduralCharacterFallback(definition, modifier)
+}
+
+private fun portraitResourceId(name: String?): Int = when (name) {
+    "mini_male_a" -> R.drawable.mini_male_a
+    "mini_male_b" -> R.drawable.mini_male_b
+    "mini_male_c" -> R.drawable.mini_male_c
+    "mini_male_d" -> R.drawable.mini_male_d
+    "mini_male_e" -> R.drawable.mini_male_e
+    "mini_female_a" -> R.drawable.mini_female_a
+    "mini_female_b" -> R.drawable.mini_female_b
+    "mini_female_c" -> R.drawable.mini_female_c
+    "mini_female_d" -> R.drawable.mini_female_d
+    "mini_female_e" -> R.drawable.mini_female_e
+    else -> 0
 }
 
 @Composable

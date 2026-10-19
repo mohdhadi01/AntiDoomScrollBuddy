@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.doombuddy.character.CharacterRoster
 import com.doombuddy.character.Entrance
@@ -97,29 +99,49 @@ fun DebugScreen(prefs: com.doombuddy.data.PrefsRepository, onBack: () -> Unit) {
         }
 
         Section("Simulate") {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                (1..6).forEach { level ->
-                    OutlinedButton(onClick = { MonitorService.instance?.debugTriggerLevel(level) }, modifier = Modifier.weight(1f)) {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items((1..6).toList()) { level ->
+                    OutlinedButton(onClick = { MonitorService.instance?.debugTriggerLevel(level) }, modifier = Modifier.width(64.dp)) {
                         Text("L$level")
                     }
                 }
             }
             Spacer(Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = { MonitorService.instance?.debugDismiss() }, modifier = Modifier.weight(1f)) {
-                    Text("Dismiss (hold)")
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                item {
+                    OutlinedButton(onClick = { MonitorService.instance?.debugDismiss() }, modifier = Modifier.width(150.dp)) {
+                        Text("Dismiss (hold)")
+                    }
                 }
-                OutlinedButton(onClick = { MonitorService.instance?.debugEndSession() }, modifier = Modifier.weight(1f)) {
-                    Text("Exit app")
+                item {
+                    OutlinedButton(onClick = { MonitorService.instance?.debugEndSession() }, modifier = Modifier.width(110.dp)) {
+                        Text("Exit app")
+                    }
                 }
             }
             Spacer(Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = { MonitorService.instance?.debugAddFakeToday(30) }, modifier = Modifier.weight(1f)) {
-                    Text("Today +30m")
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                item {
+                    OutlinedButton(onClick = { MonitorService.instance?.debugAddFakeToday(30) }, modifier = Modifier.width(130.dp)) {
+                        Text("Today +30m")
+                    }
                 }
-                OutlinedButton(onClick = { MonitorService.instance?.debugAddFakeToday(60) }, modifier = Modifier.weight(1f)) {
-                    Text("Today +60m")
+                item {
+                    OutlinedButton(onClick = { MonitorService.instance?.debugAddFakeToday(60) }, modifier = Modifier.width(130.dp)) {
+                        Text("Today +60m")
+                    }
                 }
             }
             if (debugState.usageAccessGranted.not() || debugState.overlayPermissionGranted.not()) {
@@ -132,7 +154,11 @@ fun DebugScreen(prefs: com.doombuddy.data.PrefsRepository, onBack: () -> Unit) {
 
         // ---- character preview studio ----
         Section("Preview studio") {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 items(CharacterRoster.ALL) { c ->
                     Card(
                         onClick = { previewCharacter = c; previewKey++ },
@@ -143,17 +169,25 @@ fun DebugScreen(prefs: com.doombuddy.data.PrefsRepository, onBack: () -> Unit) {
                 }
             }
             Spacer(Modifier.height(10.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                (0..6).forEach { level ->
-                    OutlinedButton(onClick = { previewLevel = level; previewKey++ }, modifier = Modifier.weight(1f)) {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                items((0..6).toList()) { level ->
+                    OutlinedButton(onClick = { previewLevel = level; previewKey++ }, modifier = Modifier.width(58.dp)) {
                         Text("$level", style = MaterialTheme.typography.labelSmall)
                     }
                 }
             }
             Spacer(Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Entrance.entries.forEach { e ->
-                    OutlinedButton(onClick = { previewEntrance = e; previewKey++ }, modifier = Modifier.weight(1f)) {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                items(Entrance.entries, key = { it.name }) { e ->
+                    OutlinedButton(onClick = { previewEntrance = e; previewKey++ }, modifier = Modifier.width(86.dp)) {
                         Text(e.name.take(4).lowercase(), style = MaterialTheme.typography.labelSmall)
                     }
                 }
@@ -215,6 +249,9 @@ private fun StateRow(label: String, value: String) {
             value,
             style = MaterialTheme.typography.bodyMedium,
             color = if (value.contains("MISSING")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

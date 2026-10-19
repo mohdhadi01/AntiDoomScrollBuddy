@@ -20,19 +20,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -138,7 +142,13 @@ private fun StepScaffold(title: String, subtitle: String? = null, content: @Comp
             Text(subtitle, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Spacer(Modifier.height(22.dp))
-        content()
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
+            content = content,
+        )
         Spacer(Modifier.height(18.dp))
     }
 }
@@ -149,7 +159,7 @@ private fun StepScaffold(title: String, subtitle: String? = null, content: @Comp
 private fun IntroStep(onNext: () -> Unit) {
     StepScaffold(title = "Meet your new scroll buddy", subtitle = "A tiny, opinionated friend for the moments when one more video becomes forty.") {
         Card(
-            Modifier.weight(1f).fillMaxWidth(),
+            Modifier.fillMaxWidth().heightIn(min = 240.dp),
             shape = MaterialTheme.shapes.extraLarge,
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         ) {
@@ -179,7 +189,7 @@ private fun WhyStep(onNext: () -> Unit) {
             WhyCard("It never blocks you", "Tiny corner, no touch-stealing, scroll right past. It just wants you to notice.")
             WhyCard("It keeps numbers, nothing else", "Only which of your chosen apps were open, and for how long. That's the whole database.")
         }
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(16.dp))
         Button(onClick = onNext, modifier = Modifier.fillMaxWidth().height(54.dp), shape = RoundedCornerShape(16.dp)) {
             Text("Pick my buddy")
         }
@@ -209,7 +219,7 @@ private fun CharacterStep(prefs: PrefsRepository, onNext: () -> Unit) {
 
     StepScaffold(title = "Pick your buddy", subtitle = "Ten animated 3D crew members. Pick the one you want interrupting your scroll.") {
         Box(
-            Modifier.weight(1f).fillMaxWidth().clip(MaterialTheme.shapes.extraLarge).background(MaterialTheme.colorScheme.surface),
+            Modifier.fillMaxWidth().heightIn(min = 360.dp).clip(MaterialTheme.shapes.extraLarge).background(MaterialTheme.colorScheme.surface),
             contentAlignment = Alignment.Center,
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -234,6 +244,7 @@ private fun CharacterStep(prefs: PrefsRepository, onNext: () -> Unit) {
                 // The launch roster is intentionally small and character-first.
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(horizontal = 8.dp),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     items(LaunchCharacters) { c ->
@@ -380,7 +391,7 @@ private fun AppsStep(prefs: PrefsRepository, onNext: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(16.dp))
         Button(onClick = onNext, modifier = Modifier.fillMaxWidth().height(54.dp), shape = RoundedCornerShape(16.dp)) {
             Text("Looks right")
         }
@@ -405,8 +416,12 @@ private fun StyleStep(prefs: PrefsRepository, onNext: () -> Unit) {
 
     StepScaffold(title = "How much buddy?", subtitle = "Chill = barely there. Chaos = expect the ridiculous.") {
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                Intensity.entries.forEach { level ->
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(horizontal = 2.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                items(Intensity.entries, key = { it.name }) { level ->
                     val isChosen = level == intensity
                     Card(
                         onClick = { intensity = level },
@@ -414,7 +429,7 @@ private fun StyleStep(prefs: PrefsRepository, onNext: () -> Unit) {
                         colors = CardDefaults.cardColors(
                             containerColor = if (isChosen) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
                         ),
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.width(104.dp),
                     ) {
                         Text(
                             level.name.lowercase().replaceFirstChar { it.uppercase() },
@@ -503,7 +518,7 @@ private fun StyleStep(prefs: PrefsRepository, onNext: () -> Unit) {
                 }
             }
         }
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(16.dp))
         Button(
             onClick = { save(); onNext() },
             modifier = Modifier.fillMaxWidth().height(54.dp),
@@ -590,7 +605,7 @@ private fun PermissionsStep(onNext: () -> Unit) {
                 )
             }
         }
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(16.dp))
         Button(
             onClick = onNext,
             enabled = state.usageAccess && state.overlay,
@@ -637,7 +652,7 @@ private fun TestStep(prefs: PrefsRepository, onNext: () -> Unit) {
         title = "Say hello for real",
         subtitle = "A test buddy will pop over this screen in a few seconds. This is exactly what Instagram-you will see.",
     ) {
-        Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Box(Modifier.fillMaxWidth().height(220.dp), contentAlignment = Alignment.Center) {
             if (shown && prefsState != null) {
                 CircularProgressIndicator()
             } else {
@@ -689,7 +704,7 @@ private fun DoneStep(prefs: PrefsRepository, onDone: () -> Unit) {
         MonitorService.instance?.debugForceHideOverlay()
     }
     StepScaffold(title = "You're set", subtitle = "Go about your day. Your buddy has the watch.") {
-        Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Box(Modifier.fillMaxWidth().height(260.dp), contentAlignment = Alignment.Center) {
             AnimatedCharacter(CharacterRoster.byId(doneCharacterId), Modifier.width(220.dp).height(200.dp), entrance = com.doombuddy.character.Entrance.BOUNCE, moodLevel = 2)
         }
         Button(onClick = onDone, modifier = Modifier.fillMaxWidth().height(54.dp), shape = RoundedCornerShape(16.dp)) {

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -69,7 +72,7 @@ fun SettingsScreen(prefs: PrefsRepository, onBack: () -> Unit) {
         }
 
         Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp),
+            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Text("Make it yours.", style = MaterialTheme.typography.headlineMedium)
@@ -77,12 +80,16 @@ fun SettingsScreen(prefs: PrefsRepository, onBack: () -> Unit) {
             Spacer(Modifier.height(4.dp))
 
             SettingsCard("YOUR BUDDY", "Choose the little personality that follows your scroll.") {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    LaunchCharacters.forEach { character ->
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    items(LaunchCharacters, key = { it.id }) { character ->
                         val chosen = character.id == s.characterId
                         Card(
                             onClick = { scope.launch { prefs.setCharacter(character.id) } },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.width(112.dp),
                             shape = MaterialTheme.shapes.medium,
                             colors = CardDefaults.cardColors(
                                 containerColor = if (chosen) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
@@ -104,12 +111,16 @@ fun SettingsScreen(prefs: PrefsRepository, onBack: () -> Unit) {
             }
 
             SettingsCard("HOW MUCH BUDDY?", "Set the energy, then choose when the first check-in lands.") {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Intensity.entries.forEach { level ->
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    items(Intensity.entries, key = { it.name }) { level ->
                         val chosen = level == s.intensity
                         Card(
                             onClick = { scope.launch { prefs.setIntensity(level) } },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.width(104.dp),
                             shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(containerColor = if (chosen) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant),
                         ) {
@@ -142,12 +153,16 @@ fun SettingsScreen(prefs: PrefsRepository, onBack: () -> Unit) {
             SettingsCard("TIME ON SCREEN", "Pick the timer layout and the hold-to-dismiss feel.") {
                 Text("Timer layout", style = MaterialTheme.typography.bodyLarge)
                 Spacer(Modifier.height(8.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TimerMode.entries.forEach { mode ->
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    items(TimerMode.entries, key = { it.name }) { mode ->
                         val chosen = mode == s.timerMode
                         Card(
                             onClick = { scope.launch { prefs.setTimerMode(mode) } },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.width(112.dp),
                             colors = CardDefaults.cardColors(containerColor = if (chosen) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceVariant),
                             shape = RoundedCornerShape(12.dp),
                         ) {

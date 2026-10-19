@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -136,13 +138,20 @@ fun HomeScreen(
         }
 
         item {
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 18.dp),
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 18.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                SnapshotStat("SCROLL TIME", formatMinutes(usage.totalMs), MaterialTheme.colorScheme.secondary, Modifier.weight(1f))
-                SnapshotStat("RECLAIMED", formatMinutes(reclaimed ?: 0), MaterialTheme.colorScheme.primary, Modifier.weight(1f))
-                SnapshotStat("OPENS", opens.sumOf { it.second }.toString(), MaterialTheme.colorScheme.tertiary, Modifier.weight(1f))
+                item {
+                    SnapshotStat("SCROLL TIME", formatMinutes(usage.totalMs), MaterialTheme.colorScheme.secondary, Modifier.width(132.dp))
+                }
+                item {
+                    SnapshotStat("RECLAIMED", formatMinutes(reclaimed ?: 0), MaterialTheme.colorScheme.primary, Modifier.width(132.dp))
+                }
+                item {
+                    SnapshotStat("OPENS", opens.sumOf { it.second }.toString(), MaterialTheme.colorScheme.tertiary, Modifier.width(132.dp))
+                }
             }
         }
 
@@ -308,7 +317,13 @@ private fun SessionRow(entry: StatsRepository.SessionEntry) {
             Text(formatMinutes(entry.durationMs), style = MaterialTheme.typography.labelLarge)
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("${formatClock(entry.startEpochMs)} – ${formatClock(entry.endEpochMs)}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                "${formatClock(entry.startEpochMs)} – ${formatClock(entry.endEpochMs)}",
+                Modifier.weight(1f),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+            )
             if (entry.interventions > 0) {
                 Spacer(Modifier.width(8.dp))
                 Text("· ${entry.interventions} visit" + if (entry.interventions > 1) "s" else "", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
