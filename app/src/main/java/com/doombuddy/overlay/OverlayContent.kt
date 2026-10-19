@@ -18,7 +18,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -54,11 +56,14 @@ import java.util.concurrent.TimeUnit
 /**
  * Root of the persistent intervention overlay (spec §42):
  *
- *   [ timer card — owned by the character, Session ↔ Today per mode ]
- *   [ character — tap = poke, HOLD = the only dismissal, with progress ring ]
- *   [ short line — garnish, not the message ]
+ *   [ live badge + app-independent session/today timer ]
+ *   [ timer pod + measured character stage ]
+ *   [ short line + hold affordance ]
  *
- * The window is wrap-content; touches outside it belong to the host app.
+ * The window is one fixed-size measured card. The old widget stacked independently
+ * animated speech, timer, and character columns, so its WRAP_CONTENT bounds changed
+ * while acting and clipped the character. This composition keeps all renderable pixels
+ * inside a stable 260dp x 184dp stage; touches outside the character still pass through.
  */
 @Composable
 fun OverlayRoot(controller: OverlayController) {
@@ -66,37 +71,60 @@ fun OverlayRoot(controller: OverlayController) {
     val character = state.character ?: return
     val director = controller.director
     val scope = rememberCoroutineScope()
-    // User-controlled buddy size (0.7–1.6 of the base 112dp design).
-    val u = state.uiScale.coerceIn(0.6f, 2f)
+    val u = state.uiScale.coerceIn(0.78f, 1.18f)
+    val cardWidth = (260 * u).dp
+    val cardHeight = (184 * u).dp
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = Modifier
+            .width(cardWidth)
+            .height(cardHeight)
+            .clip(RoundedCornerShape((28 * u).dp))
+            .background(Color(0xF5111820))
+            .border(1.dp, Color(0xFFB7C6D8).copy(alpha = 0.18f), RoundedCornerShape((28 * u).dp))
+            .padding((12 * u).dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            Box(Modifier.size((7 * u).dp).clip(CircleShape).background(Color(0xFFB9E86B)))
+            Spacer(Modifier.width((6 * u).dp))
+            Text("BUDDY LIVE", color = Color(0xFFB9E86B), fontSize = (9 * u).sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+            Spacer(Modifier.weight(1f))
+            Text("HOLD TO DISMISS", color = Color(0xFF8291A3), fontSize = (8 * u).sp, fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp)
+        }
 
-        AnimatedVisibility(
-            visible = state.dialogueLine != null,
-            enter = fadeIn(tween(180)) + scaleIn(initialScale = 0.75f, animationSpec = tween(180)),
-            exit = fadeOut(tween(140)),
+        Spacer(Modifier.height((8 * u).dp))
+        Row(
+            modifier = Modifier.fillMaxWidth().weight(1f),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            SpeechBubble(state.dialogueLine.orEmpty())
+            BuddyTimerCard(
+                mode = state.timerMode,
+                sessionMs = state.sessionMs,
+                todayMs = state.todayMs,
+                cycleSeconds = state.cycleSeconds,
+                scale = u,
+                onCycleFlip = { director?.lookAtTimer() },
+            )
+            HoldableBuddy(
+                state = state,
+                director = director,
+                controller = controller,
+                scope = scope,
+                scale = u,
+            )
         }
 
         Spacer(Modifier.height((4 * u).dp))
-
-        // The timer card belongs to the buddy: it "pulls" it into view each intervention.
-        BuddyTimerCard(
-            mode = state.timerMode,
-            sessionMs = state.sessionMs,
-            todayMs = state.todayMs,
-            cycleSeconds = state.cycleSeconds,
-            scale = u,
-            onCycleFlip = { director?.lookAtTimer() },
-        )
-
-        HoldableBuddy(
-            state = state,
-            director = director,
-            controller = controller,
-            scope = scope,
-            scale = u,
+        Text(
+            state.dialogueLine ?: "tap me for a reaction · hold me to leave",
+            modifier = Modifier.fillMaxWidth(),
+            color = if (state.dialogueLine != null) Color(0xFFF2F5F7) else Color(0xFF8291A3),
+            fontSize = (10 * u).sp,
+            lineHeight = (13 * u).sp,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
         )
     }
 }
@@ -114,11 +142,10 @@ fun BuddyTimerCard(
     onCycleFlip: () -> Unit = {},
 ) {
     val ts = (19 * scale).sp
-    val pad = 7.dp * scale
     when (mode) {
-        TimerMode.SESSION_ONLY -> TimerView("THIS SESSION", formatSession(sessionMs), sessionAccent, valueSize = ts)
+        TimerMode.SESSION_ONLY -> TimerView("SESSION", formatSession(sessionMs), sessionAccent, valueSize = ts)
         TimerMode.STACKED -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            TimerView("THIS SESSION", formatSession(sessionMs), sessionAccent, valueSize = ts)
+            TimerView("SESSION", formatSession(sessionMs), sessionAccent, valueSize = ts)
             Spacer(Modifier.height(4.dp))
             TimerView("TODAY", formatToday(todayMs), todayAccent, valueSize = ts)
         }
@@ -143,7 +170,7 @@ fun BuddyTimerCard(
                 if (today) {
                     TimerView("TODAY", formatToday(todayMs), todayAccent, valueSize = ts)
                 } else {
-                    TimerView("THIS SESSION", formatSession(sessionMs), sessionAccent, valueSize = ts)
+                    TimerView("SESSION", formatSession(sessionMs), sessionAccent, valueSize = ts)
                 }
             }
         }
@@ -154,6 +181,7 @@ fun BuddyTimerCard(
 private fun TimerView(label: String, value: String, accent: Color, showLabels: Boolean = true, valueSize: androidx.compose.ui.unit.TextUnit = 19.sp) {
     Box(
         modifier = Modifier
+            .widthIn(min = 92.dp, max = 108.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(Color(0xF2141720))
             .border(1.dp, accent.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
@@ -223,9 +251,9 @@ private fun HoldableBuddy(
 ) {
     val character = state.character ?: return
     val buddySize = (112 * scale).dp
-    val ringSize = (118 * scale).dp
+    val ringSize = (120 * scale).dp
     val boxW = (128 * scale).dp
-    val boxH = (112 * scale).dp
+    val boxH = (116 * scale).dp
     var holding by remember { mutableStateOf(false) }
     var completed by remember { mutableStateOf(false) }
     // pointerInput is keyed only by hold duration, so callbacks must read the
@@ -312,25 +340,5 @@ private fun HoldableBuddy(
                 letterSpacing = 1.sp,
             )
         }
-    }
-}
-
-@Composable
-private fun SpeechBubble(line: String) {
-    Box(
-        modifier = Modifier
-            .widthIn(min = 80.dp, max = 190.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xF2141720))
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-    ) {
-        Text(
-            text = line,
-            color = Color(0xFFF3F5F7),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium,
-            lineHeight = 16.sp,
-            textAlign = TextAlign.Center,
-        )
     }
 }

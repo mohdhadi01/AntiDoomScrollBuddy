@@ -128,7 +128,12 @@ class OverlayController(private val context: Context) {
 
     fun update(ui: OverlayUiState) {
         if (!attached) return
+        val scaleChanged = state.uiScale != ui.uiScale
         state = ui
+        // The root is intentionally fixed-size, but posting a reposition keeps the
+        // overlay correct after density/configuration changes and after the first
+        // composition has measured its stable card bounds.
+        if (scaleChanged) view?.post { reposition() }
     }
 
     fun hide(onDone: () -> Unit = {}) {

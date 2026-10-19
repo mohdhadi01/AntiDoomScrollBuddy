@@ -13,15 +13,16 @@ V1 launch roster — THREE characters (all original, procedurally drawn, no asse
 
 | Buddy | Species | Personality | Signature |
 |---|---|---|---|
-| The Melt | blob | Lazy / sarcastic | melty asymmetric body with a drip, slow collapse, "Bro." |
-| Zobo | alien | Confused observer | floats, pulsing antennae, third-eye dot, head tilts |
-| Quackles | duck | Chaotic | parting beak, flapping wings, hair swirl, full panic |
+| Marlow | humanoid toy | Lazy / sarcastic | hoodie slouch, blanket, clock glance, hard sit |
+| Orbit | astronaut | Confused observer | visor inspection, antenna signal, mission report |
+| Riff | skater | Chaotic | board, jacket, unstable balance, dramatic fall |
 
 The procedural rig still contains compatibility/future definitions for pre-release
 preference values, but they are not presented as launch choices.
 
-3D feel: every body carries a spherical gloss layer (offset radial highlight), 3-stop
-base gradient, rim light and contact shading — the premium-"Dot" dimensional read.
+3D feel: every figure carries a material gradient, skin/cloth separation, contact shadow,
+rim highlights, footwear, and prop depth. The stage is composed like a small toy-display
+photo rather than a flat sticker.
 
 The FROG/CAT/ROBOT/GHOST rigs remain in the renderer for future roster expansion.
 Each character gets its own entrance style, idle physics, dialogue banks (including

@@ -20,7 +20,21 @@ data class CharacterDefinition(
 
 enum class Personality { SWEET, ANGRY, PLAYFUL, MISCHIEVOUS, LAZY, CONFUSED, CHAOTIC, CHILL, JUDGMENTAL, DEADPAN, DRAMATIC, WHOLESOME }
 
-enum class Species { ORB, SHADOW, BLOB, ALIEN, DUCK, CAT, PANDA, FROG, ROBOT, GHOST } // extras kept for future roster
+enum class Species {
+    HUMANOID,
+    ASTRONAUT,
+    SKATER,
+    ORB,
+    SHADOW,
+    BLOB,
+    ALIEN,
+    DUCK,
+    CAT,
+    PANDA,
+    FROG,
+    ROBOT,
+    GHOST,
+}
 
 /** How "escalated" the buddy currently looks. Maps 1:1 to intervention levels. */
 enum class Mood {
