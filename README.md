@@ -1,7 +1,7 @@
 # DoomBuddy (AntiDoomScrollBuddy)
 
-A character-driven digital-wellbeing companion for Android. You pick one of seven
-buddies — **The Melt**, **Zobo**, **Quackles**, **Pip**, **Shade**, **Mochi**, or **Bao**; when a tracked app has been open too
+A character-driven digital-wellbeing companion for Android. You pick one of three
+launch buddies — **The Melt**, **Zobo**, or **Quackles**; when a tracked app has been open too
 long, the buddy appears **over** that app, *stays*, and acts out your elapsed time
 (peeking, fidgeting, popcorn, napping) beside a live timer that cycles between
 **THIS SESSION** and **TODAY**. It never quietly disappears: you escape with a

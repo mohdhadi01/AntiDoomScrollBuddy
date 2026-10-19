@@ -19,6 +19,8 @@ RUN apt-get update \
 WORKDIR /workspace
 COPY . .
 
-RUN chmod +x ./gradlew && ./gradlew :app:assembleDebug --offline
+# The image build is the dependency-provisioning step. Subsequent container runs use
+# the warmed Gradle cache and the offline Makefile commands.
+RUN chmod +x ./gradlew && ./gradlew :app:assembleDebug
 
 CMD ["./gradlew", ":app:assembleDebug", "--offline"]

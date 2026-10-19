@@ -4,3 +4,10 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.ksp) apply false
 }
+
+// Keep the resolved dependency graph reproducible on clean machines and in CI.
+allprojects {
+    dependencyLocking {
+        lockAllConfigurations()
+    }
+}

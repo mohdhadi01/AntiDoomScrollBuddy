@@ -9,17 +9,16 @@ choreography and the renderer never change when a buddy is added.
 `Palette` (9 colors) + `Proportions` (normalized rig dims) + built-in `Accessory` +
 `DialogueBank`.
 
-V1 roster — SEVEN characters (all original, procedurally drawn, no assets):
+V1 launch roster — THREE characters (all original, procedurally drawn, no assets):
 
 | Buddy | Species | Personality | Signature |
 |---|---|---|---|
 | The Melt | blob | Lazy / sarcastic | melty asymmetric body with a drip, slow collapse, "Bro." |
 | Zobo | alien | Confused observer | floats, pulsing antennae, third-eye dot, head tilts |
 | Quackles | duck | Chaotic | parting beak, flapping wings, hair swirl, full panic |
-| Pip | orb | Playful trickster | Dot-inspired glossy sphere, crisp specular, rolls and bounces |
-| Shade | shadow | Mischievous | dark wavy body, glowing cyan eyes, edge wisps, dissolves |
-| Mochi | cat | Sweet | cream fur, muzzle + pink nose + "w" mouth, curled wagging tail, bow |
-| Bao | panda | Angry (lovable) | black ear caps, angled eye patches, black mitts, thick stern brows |
+
+The procedural rig still contains compatibility/future definitions for pre-release
+preference values, but they are not presented as launch choices.
 
 3D feel: every body carries a spherical gloss layer (offset radial highlight), 3-stop
 base gradient, rim light and contact shading — the premium-"Dot" dimensional read.
