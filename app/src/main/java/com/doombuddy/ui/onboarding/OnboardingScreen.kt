@@ -167,7 +167,7 @@ private fun IntroStep(onNext: () -> Unit) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("AWARENESS, WITH PERSONALITY", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.height(14.dp))
-                    AnimatedCharacter(CharacterRoster.MELT, Modifier.width(220.dp).height(220.dp), entrance = com.doombuddy.character.Entrance.POP)
+                    AnimatedCharacter(CharacterRoster.MELT, Modifier.width(220.dp).height(220.dp), entrance = com.doombuddy.character.Entrance.POP, useLive3d = true)
                     Text("No guilt trips. Just a little nudge.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
@@ -217,7 +217,7 @@ private fun CharacterStep(prefs: PrefsRepository, onNext: () -> Unit) {
     val characterId = chosenId ?: selected?.characterId ?: "melt"
     val character = CharacterRoster.byId(characterId)
 
-    StepScaffold(title = "Pick your buddy", subtitle = "Ten animated 3D crew members. Pick the one you want interrupting your scroll.") {
+    StepScaffold(title = "Pick your buddy", subtitle = "Meet Fenn, the animated fox who interrupts your scroll.") {
         Box(
             Modifier.fillMaxWidth().heightIn(min = 360.dp).clip(MaterialTheme.shapes.extraLarge).background(MaterialTheme.colorScheme.surface),
             contentAlignment = Alignment.Center,
@@ -288,7 +288,7 @@ private fun CharacterStep(prefs: PrefsRepository, onNext: () -> Unit) {
 
 /**
  * The picker IS the product demo (spec §21): the buddy with its hold ring. Tapping
- * swipes between characters; completing a hold triggers the same escape the real
+ * previews the character; completing a hold triggers the same escape the real
  * overlay performs (character reacts, ring completes).
  */
 @Composable
@@ -331,6 +331,7 @@ private fun HoldablePreviewBuddy(
             },
             entrance = com.doombuddy.character.Entrance.PORTAL,
             moodLevel = if (selectedId == character.id) 2 else 0,
+            useLive3d = true,
         )
         if (escaped) {
             Text(
@@ -464,6 +465,7 @@ private fun StyleStep(prefs: PrefsRepository, onNext: () -> Unit) {
                             Modifier.width(150.dp).height(130.dp),
                             entrance = previewEntrance,
                             moodLevel = if (intensity == Intensity.CHAOS) 4 else 2,
+                            useLive3d = true,
                         )
                     }
                     Spacer(Modifier.height(8.dp))
@@ -705,7 +707,7 @@ private fun DoneStep(prefs: PrefsRepository, onDone: () -> Unit) {
     }
     StepScaffold(title = "You're set", subtitle = "Go about your day. Your buddy has the watch.") {
         Box(Modifier.fillMaxWidth().height(260.dp), contentAlignment = Alignment.Center) {
-            AnimatedCharacter(CharacterRoster.byId(doneCharacterId), Modifier.width(220.dp).height(200.dp), entrance = com.doombuddy.character.Entrance.BOUNCE, moodLevel = 2)
+            AnimatedCharacter(CharacterRoster.byId(doneCharacterId), Modifier.width(220.dp).height(200.dp), entrance = com.doombuddy.character.Entrance.BOUNCE, moodLevel = 2, useLive3d = true)
         }
         Button(onClick = onDone, modifier = Modifier.fillMaxWidth().height(54.dp), shape = RoundedCornerShape(16.dp)) {
             Text("Open DoomBuddy")

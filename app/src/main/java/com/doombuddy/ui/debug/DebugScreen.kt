@@ -224,6 +224,7 @@ fun DebugScreen(prefs: com.doombuddy.data.PrefsRepository, onBack: () -> Unit) {
                         Modifier.size(220.dp),
                         entrance = previewEntrance,
                         moodLevel = previewLevel,
+                        useLive3d = true,
                     )
                 }
             }

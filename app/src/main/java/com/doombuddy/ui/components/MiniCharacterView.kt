@@ -5,6 +5,7 @@ import android.graphics.Color as AndroidColor
 import android.view.TextureView
 import android.widget.FrameLayout
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -72,7 +73,7 @@ class MiniCharacterView(
                         if (animator.animationCount > 0) {
                             if (animationStartNanos == 0L) animationStartNanos = frameTimeNanos
                             if (frameTimeNanos - animationStartNanos > 4_500_000_000L) {
-                                actionIndex = (actionIndex + 1) % 8
+                                actionIndex = (actionIndex + 1) % animator.animationCount
                                 animationStartNanos = frameTimeNanos
                             }
                             val duration = animator.getAnimationDuration(actionClip(animator.animationCount)).coerceAtLeast(0.1f)
@@ -109,14 +110,12 @@ class MiniCharacterView(
         val model = viewer ?: return
         val animationCount = model.animator?.animationCount ?: return
         if (animationCount == 0) return
-        val plan = listOf(1, 11, 12, 7, 4, 2, 15, 22)
-        actionIndex = (actionIndex + 1 + level.coerceIn(0, 2)) % plan.size
+        actionIndex = (actionIndex + 1 + level.coerceIn(0, 2)) % animationCount
         animationStartNanos = 0L
     }
 
     private fun actionClip(animationCount: Int): Int {
-        val plan = listOf(1, 11, 12, 7, 4, 2, 15, 22)
-        return plan[actionIndex % plan.size].coerceIn(0, animationCount - 1)
+        return actionIndex % animationCount
     }
 
     override fun onDetachedFromWindow() {
@@ -142,17 +141,24 @@ fun MiniCharacter3D(
         return
     }
     var failed by remember(modelAsset) { mutableStateOf(false) }
-    if (failed || !useLive3d) {
+    if (!useLive3d) {
         MiniCharacterPortrait(definition, modifier)
     } else {
-        key(modelAsset) {
-            androidx.compose.ui.viewinterop.AndroidView(
-                factory = { context ->
-                    MiniCharacterView(context, modelAsset) { failed = true }
-                },
-                update = {},
-                modifier = modifier,
-            )
+        androidx.compose.foundation.layout.Box(modifier) {
+            // Keep the authored portrait behind the GL surface. It remains visible while the
+            // GPU surface is warming up and becomes the guaranteed fallback if Filament fails.
+            MiniCharacterPortrait(definition, Modifier.fillMaxSize())
+            if (!failed) {
+                key(modelAsset) {
+                    androidx.compose.ui.viewinterop.AndroidView(
+                        factory = { context ->
+                            MiniCharacterView(context, modelAsset) { failed = true }
+                        },
+                        update = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
         }
     }
 }
@@ -180,16 +186,7 @@ fun MiniCharacterPortrait(definition: CharacterDefinition, modifier: Modifier = 
 }
 
 private fun portraitResourceId(name: String?): Int = when (name) {
-    "mini_male_a" -> R.drawable.mini_male_a
-    "mini_male_b" -> R.drawable.mini_male_b
-    "mini_male_c" -> R.drawable.mini_male_c
-    "mini_male_d" -> R.drawable.mini_male_d
-    "mini_male_e" -> R.drawable.mini_male_e
-    "mini_female_a" -> R.drawable.mini_female_a
-    "mini_female_b" -> R.drawable.mini_female_b
-    "mini_female_c" -> R.drawable.mini_female_c
-    "mini_female_d" -> R.drawable.mini_female_d
-    "mini_female_e" -> R.drawable.mini_female_e
+    "fenn_portrait" -> R.drawable.fenn_portrait
     else -> 0
 }
 

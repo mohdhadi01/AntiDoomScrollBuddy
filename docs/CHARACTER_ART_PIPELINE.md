@@ -2,15 +2,15 @@
 
 ## Decision
 
-DoomBuddy V1 uses local GLB models rendered by Google Filament. The Android app uses the
-same models in the selector, preview, and floating overlay. A small portrait fallback is
-used only for roster thumbnails so ten character previews do not create ten GPU scenes at
-once.
+DoomBuddy V1 uses one local, animated fox GLB rendered by Google Filament. The Android app
+uses the same model in the selector, preview, and floating overlay. A local portrait fallback
+is kept underneath the GL surface so the character is never blank while the GPU scene warms
+up or if a device cannot render Filament.
 
 This is deliberate: the overlay must start quickly, remain lightweight over another app,
-work offline, and survive Android process/window recreation. A small procedural renderer
-keeps the APK free of large binary art packs while still providing gradients, rim light,
-specular highlights, silhouettes, props, particles, and animated facial features.
+work offline, and survive Android process/window recreation. The local portrait is a reliable
+startup/failure fallback, while the GLB provides real depth, materials, skinning, and authored
+motion without a network dependency.
 
 ## Options considered
 
@@ -25,13 +25,13 @@ specular highlights, silhouettes, props, particles, and animated facial features
 
 ## V1 roster
 
-The launch roster is ten characters with shared presentation rules:
+The launch roster is one character with shared presentation rules:
 
-- Marlow, Orbit, Riff, Nova, Pixel, Luma, Jet, Sage, Echo, and Moss.
+- Fenn, a playful fox with Walk, Tail wag, and Look around clips.
 
-The pack's clips are real GLB animations. The Filament view rotates through idle, walk,
-jump, sit, and emote clips as the companion remains visible. The timer/message state stays
-separate from animation playback so an animation finishing cannot dismiss the intervention.
+The clips are real GLB animations. The Filament view rotates through the available clips as
+the companion remains visible. The timer/message state stays separate from animation playback
+so an animation finishing cannot dismiss the intervention.
 
 Each definition supplies its palette, proportions, personality, dialogue banks, and
 species-specific details. The renderer owns no product logic. `CharacterDirector` owns
@@ -51,12 +51,11 @@ reset usage time.
 
 ## Asset and licensing policy
 
-There are no external character assets in V1. All character shapes and props are original
-source code in `character/CharacterRenderer.kt`, and all copy is authored in
-`CharacterRoster.kt`. This avoids stock-art provenance, font licensing, and mismatched
-multi-image character identity. If V2 moves to authored sprites or Rive, exports must be
-stored under `app/src/main/assets/characters/`, accompanied by source/license notes, and
-must preserve the same runtime state-machine contract.
+The Fenn model and portrait are external licensed assets documented in
+`docs/ASSET_LICENSES.md`; the runtime and companion copy remain authored in this repository.
+Any future replacement must be stored under `app/src/main/assets/characters/` or
+`app/src/main/res/drawable-nodpi/`, accompanied by source/license notes, and must preserve the
+same runtime state-machine contract.
 
 ## Quality bar for future art
 

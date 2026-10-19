@@ -9,16 +9,14 @@ choreography and the renderer never change when a buddy is added.
 `Palette` (9 colors) + `Proportions` (normalized rig dims) + built-in `Accessory` +
 `DialogueBank`.
 
-V1 launch roster — THREE characters (all original, procedurally drawn, no assets):
+V1 launch roster — one licensed, animated 3D character with a portrait fallback:
 
 | Buddy | Species | Personality | Signature |
 |---|---|---|---|
-| Marlow | humanoid toy | Lazy / sarcastic | hoodie slouch, blanket, clock glance, hard sit |
-| Orbit | astronaut | Confused observer | visor inspection, antenna signal, mission report |
-| Riff | skater | Chaotic | board, jacket, unstable balance, dramatic fall |
+| Fenn | fox | Playful / chaotic | tail wag, look-around, bad decisions |
 
-The procedural rig still contains compatibility/future definitions for pre-release
-preference values, but they are not presented as launch choices.
+The app bundles the “Fox” GLB by Bake3D with Walk, Tail wag, and Look around clips. It is
+licensed under CC BY 4.0; see `docs/ASSET_LICENSES.md` for the required attribution.
 
 3D feel: every figure carries a material gradient, skin/cloth separation, contact shadow,
 rim highlights, footwear, and prop depth. The stage is composed like a small toy-display

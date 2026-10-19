@@ -1,8 +1,8 @@
 # DoomBuddy (AntiDoomScrollBuddy)
 
-A character-driven digital-wellbeing companion for Android. You pick one of ten
-animated 3D crew members — **Marlow**, **Orbit**, **Riff**, **Nova**, **Pixel**, **Luma**, **Jet**, **Sage**, **Echo**, or **Moss**; when a tracked app has been open too
-long, the buddy appears **over** that app, *stays*, and acts out your elapsed time
+A character-driven digital-wellbeing companion for Android. You pick **Fenn**, a playful
+animated 3D fox; when a tracked app has been open too long, the buddy appears **over** that
+app, *stays*, and acts out your elapsed time
 (peeking, fidgeting, popcorn, napping) beside a live timer that cycles between
 **THIS SESSION** and **TODAY**. It never quietly disappears: you escape with a
 deliberate **hold-to-dismiss** (the session keeps counting), and it comes back later.
@@ -10,9 +10,9 @@ Leaving the app ends the session, celebrates your escape, and banks the time.
 
 > The character is the product. The timer is part of the character.
 
-Native-first, offline-first, local GLB characters rendered by Filament, no analytics, no
-network at runtime. Character models are from Kenney's CC0 Mini Characters pack; the
-license is preserved in `app/src/main/assets/characters/LICENSE.txt`.
+Native-first, offline-first, a local GLB character rendered by Filament, no analytics, no
+network at runtime. Fenn is “Fox” by Bake3D under CC BY 4.0; the required attribution is
+preserved in `app/src/main/assets/characters/LICENSE.txt`.
 
 ## Try it
 

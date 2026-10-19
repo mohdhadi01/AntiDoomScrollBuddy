@@ -206,6 +206,7 @@ fun SettingsScreen(prefs: PrefsRepository, onBack: () -> Unit) {
                         Modifier.align(Alignment.Center).offset(offX, offY).width(70.dp).height(62.dp),
                         entrance = com.doombuddy.character.Entrance.POP,
                         interactive = false,
+                        useLive3d = true,
                     )
                 }
                 Spacer(Modifier.height(12.dp))

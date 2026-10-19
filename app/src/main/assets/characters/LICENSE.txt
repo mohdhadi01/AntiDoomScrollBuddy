@@ -1,28 +1,12 @@
-	
+Fenn fox character
 
-	Mini Characters (1.0)
+Source: https://bake3d.ai/free-3d-models
+Asset: “Fox” by Bake3D
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
 
-	Created/distributed by Kenney (www.kenney.nl)
-	Creation date: 17-07-2024 11:31
-	
-			------------------------------
+Required attribution:
+“Fox” by Bake3D (https://bake3d.ai), licensed under CC BY 4.0.
 
-	License: (Creative Commons Zero, CC0)
-	http://creativecommons.org/publicdomain/zero/1.0/
-
-	You can use this content for personal, educational, and commercial purposes.
-
-	Support by crediting 'Kenney' or 'www.kenney.nl' (this is not a requirement)
-
-			------------------------------
-
-	• Website : www.kenney.nl
-	• Donate  : www.kenney.nl/donate
-
-	• Patreon : patreon.com/kenney
-	
-	Follow on social media for updates:
-
-	• Twitter:   twitter.com/KenneyNL
-	• Instagram: instagram.com/kenney_nl
-	• Mastodon:  mastodon.gamedev.place/@kenney
+The bundled GLB contains the textured mesh, skeleton, and Walk, Tail wag, and Look around
+animation clips. The fallback portrait is the Bake3D sample render for the same asset.

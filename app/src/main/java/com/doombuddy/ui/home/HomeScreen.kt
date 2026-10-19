@@ -130,6 +130,7 @@ fun HomeScreen(
                                 Modifier.width(170.dp).height(165.dp),
                                 entrance = com.doombuddy.character.Entrance.BOUNCE,
                                 moodLevel = mood,
+                                useLive3d = true,
                             )
                         }
                     }
