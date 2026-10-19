@@ -343,7 +343,7 @@ class MonitorService : Service() {
     private fun checkpointSession(nowMs: Long) {
         if (sessionStartedAtMs <= 0) return
         val rowId = checkpointRowId ?: return
-        val elapsed = nowMs - sessionStartedAtMs
+        val elapsed = liveSessionElapsedMs(nowMs)
         if (elapsed - lastCheckpointMs < 30_000) return
         lastCheckpointMs = elapsed
         val row = rowId
@@ -604,7 +604,10 @@ class MonitorService : Service() {
         // Finalize the session record (midnight-split, spec §41) — on IO. The
         // checkpoint row written during the session is replaced by the final rows.
         val endWall = System.currentTimeMillis()
-        val startWall = endWall - output.durationMs
+        // Use the real wall-clock start. Subtracting active duration from endWall is
+        // wrong when the user briefly backgrounds the tracked app: the paused gap would
+        // move the session into the wrong calendar day and corrupt today's totals.
+        val startWall = sessionStartWallMs.takeIf { it > 0 } ?: (endWall - output.durationMs)
         scope.launch(Dispatchers.IO) {
             runCatching { finalizeSession(output, startWall, endWall) }
                 .onFailure { Log.w(TAG, "session finalize failed", it) }
@@ -724,7 +727,7 @@ class MonitorService : Service() {
             foreground = currentPackageName,
             interventionState = interventionState,
             sessionPackage = if (sessionStartedAtMs > 0) currentPackageName else null,
-            sessionElapsedMs = if (sessionStartedAtMs > 0) SystemMonotonicClock.nowMs() - sessionStartedAtMs else 0,
+            sessionElapsedMs = liveSessionElapsedMs(),
             sessionStartWallMs = sessionStartWallMs,
             sessionPaused = sessionPaused,
             persistedTodayMs = persistedTodayMs,

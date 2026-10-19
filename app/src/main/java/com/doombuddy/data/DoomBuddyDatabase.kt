@@ -146,7 +146,7 @@ object SessionSplitter {
         val days = mutableListOf<Pair<Long, Long>>()
         var cursor = startEpochMs
         while (cursor < endEpochMs) {
-            val dayStart = LocalDate.ofInstant(Instant.ofEpochMilli(cursor), zone)
+            val dayStart = Instant.ofEpochMilli(cursor).atZone(zone).toLocalDate()
                 .atStartOfDay(zone).toInstant().toEpochMilli()
             val nextDayStart = dayStart + 24 * 60 * 60 * 1000L
             val chunkEnd = minOf(endEpochMs, nextDayStart)
@@ -157,7 +157,7 @@ object SessionSplitter {
     }
 
     fun todayStart(zone: ZoneId, nowEpochMs: Long = System.currentTimeMillis()): Long =
-        LocalDate.ofInstant(Instant.ofEpochMilli(nowEpochMs), zone)
+        Instant.ofEpochMilli(nowEpochMs).atZone(zone).toLocalDate()
             .atStartOfDay(zone).toInstant().toEpochMilli()
 }
 

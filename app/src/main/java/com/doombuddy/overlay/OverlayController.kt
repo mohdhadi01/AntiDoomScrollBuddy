@@ -194,6 +194,7 @@ class OverlayController(private val context: Context) {
         }
     }
 
+    @SuppressLint("NewApi")
     private fun createWindowContext(): Context =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val display = (context.getSystemService(Context.DISPLAY_SERVICE) as android.hardware.display.DisplayManager)
