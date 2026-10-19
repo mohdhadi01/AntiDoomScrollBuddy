@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- The Melt: lavender blob, sleepy eyes, drip — matches the default buddy -->
+    <path
+        android:fillColor="#FFD54A"
+        android:pathData="M54,30 C66,30 74,38 74,50 C74,58 70,64 64,67 C60,69 56,70 52,70 C50,74 51,77 49,79 C47,81 43,80 43,77 C43,74 45,72 45,70 C38,68 34,60 34,50 C34,38 42,30 54,30 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M46,49 a4.6,4.6 0 1,0 0.1,0 z M62,49 a4.6,4.6 0 1,1 -0.1,0 z" />
+    <path
+        android:fillColor="#2B2440"
+        android:pathData="M47.4,50.5 a2.6,2.6 0 1,0 0.1,0 z M60.6,50.5 a2.6,2.6 0 1,1 -0.1,0 z" />
+    <path
+        android:strokeColor="#2B2440"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M49,60 Q54,64 59,60" />
+</vector>

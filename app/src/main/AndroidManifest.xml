@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Foreground app detection via UsageStatsManager. Grantable only through
+         Settings > Apps > Special app access > Usage access (appop GET_USAGE_STATS). -->
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- System overlay for the character (appop SYSTEM_ALERT_WINDOW, granted via Settings). -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Foreground service keeps the monitor alive. "specialUse" is the correct FGS type
+         for a screen-time companion (no media/camera/dataSync activity involved). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
+    <!-- Persistent FGS notification (required on all API levels; POST_NOTIFICATIONS is a
+         runtime permission on 33+). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Restart the monitor after device reboot. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Device unlock/lock state so sessions pause when the screen is off. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- User-initiated "let the buddy run in the background" flow (aggressive OEM
+         battery managers otherwise kill the monitor). See PERMISSIONS.md. -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- Lets users pick tracked apps from the installed launcher list without
+         requesting QUERY_ALL_PACKAGES (Play-restricted). -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <application
+        android:name=".DoomBuddyApp"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.DoomBuddy">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.DoomBuddy">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".monitor.MonitorService"
+            android:exported="false"
+            android:stopWithTask="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Digital wellbeing companion: monitors which user-selected apps are in the foreground to start scroll sessions and show the user's chosen companion character overlay." />
+        </service>
+
+        <receiver
+            android:name=".monitor.WatchdogReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
+            android:name=".monitor.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>
