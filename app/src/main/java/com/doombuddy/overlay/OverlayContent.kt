@@ -331,7 +331,7 @@ private fun HoldableBuddy(
                 },
         )
         if (character.modelAsset != null) {
-            MiniCharacter3D(character, Modifier.matchParentSize(), state.moodLevel)
+            MiniCharacter3D(character, Modifier.matchParentSize(), state.moodLevel, useLive3d = true)
         }
 
         AnimatedVisibility(

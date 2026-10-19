@@ -317,7 +317,7 @@ private fun HoldablePreviewBuddy(
                             if (selectedId != character.id) onSelect(character.id)
                         },
                     )
-                },
+            },
             entrance = com.doombuddy.character.Entrance.PORTAL,
             moodLevel = if (selectedId == character.id) 2 else 0,
         )

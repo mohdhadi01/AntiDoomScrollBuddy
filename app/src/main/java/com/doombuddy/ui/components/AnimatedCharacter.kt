@@ -29,10 +29,11 @@ fun AnimatedCharacter(
     moodLevel: Int = 0,
     interactive: Boolean = true,
     animated: Boolean = true,
+    useLive3d: Boolean = false,
     onPoke: () -> Unit = {},
 ) {
     if (definition.modelAsset != null) {
-        if (!animated) {
+        if (!animated || !useLive3d) {
             MiniCharacterPortrait(definition, modifier)
         } else {
             val liveModifier = if (interactive) {
@@ -40,7 +41,7 @@ fun AnimatedCharacter(
                     detectTapGestures { onPoke() }
                 }
             } else modifier
-            MiniCharacter3D(definition, liveModifier, moodLevel, onPoke)
+            MiniCharacter3D(definition, liveModifier, moodLevel, onPoke, useLive3d = true)
         }
         return
     }
