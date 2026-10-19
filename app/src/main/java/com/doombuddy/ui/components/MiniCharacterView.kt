@@ -16,6 +16,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.doombuddy.character.CharacterDefinition
+import com.doombuddy.character.CharacterPose
+import com.doombuddy.character.MouthShape
+import com.doombuddy.character.characterDraw
 import com.google.android.filament.Renderer
 import com.google.android.filament.View
 import com.google.android.filament.utils.ModelViewer
@@ -133,7 +136,11 @@ fun MiniCharacter3D(
     onPoke: () -> Unit = {},
     useLive3d: Boolean = false,
 ) {
-    val modelAsset = definition.modelAsset ?: return
+    val modelAsset = definition.modelAsset
+    if (modelAsset == null) {
+        MiniCharacterPortrait(definition, modifier)
+        return
+    }
     var failed by remember(modelAsset) { mutableStateOf(false) }
     if (failed || !useLive3d) {
         MiniCharacterPortrait(definition, modifier)
@@ -153,10 +160,18 @@ fun MiniCharacter3D(
 @Composable
 fun MiniCharacterPortrait(definition: CharacterDefinition, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val name = definition.portraitName ?: return
-    val resId = remember(name) {
-        context.resources.getIdentifier(name, "drawable", context.packageName)
+    val name = definition.portraitName
+    val resId = remember(name, context.packageName) {
+        runCatching {
+            name
+                ?.takeIf { it.isNotBlank() }
+                ?.let { context.resources.getIdentifier(it, "drawable", context.packageName) }
+                ?: 0
+        }.getOrDefault(0)
     }
+
+    // Resource names are metadata and may be stale after a resource split or an asset
+    // rename. Never leave a roster slot blank just because the optional portrait is absent.
     if (resId != 0) {
         Image(
             painter = painterResource(resId),
@@ -164,5 +179,26 @@ fun MiniCharacterPortrait(definition: CharacterDefinition, modifier: Modifier = 
             contentScale = ContentScale.Fit,
             modifier = modifier,
         )
+        return
     }
+
+    ProceduralCharacterFallback(definition, modifier)
+}
+
+@Composable
+private fun ProceduralCharacterFallback(
+    definition: CharacterDefinition,
+    modifier: Modifier,
+) {
+    androidx.compose.foundation.layout.Box(
+        modifier = modifier.characterDraw(definition) {
+            CharacterPose(
+                alpha = 1f,
+                accessory = definition.accessory,
+                mouth = MouthShape.SMILE,
+                browRaise = 0.3f,
+                scaleY = 1f,
+            )
+        },
+    )
 }
