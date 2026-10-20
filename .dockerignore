@@ -1,0 +1,17 @@
+.git
+.gradle
+.kotlin
+.idea
+.agent_screens
+build
+app/build
+local.properties
+keystore.properties
+*.keystore
+*.jks
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+**/__pycache__

@@ -79,15 +79,58 @@ private fun DrawScope.drawToyCharacter(definition: CharacterDefinition, pose: Ch
         scale(safeScaleX, safeScaleY, pivot = base) {
             rotate(safeRotation + pose.lean.coerceIn(-5f, 5f), pivot = base) {
                 drawBackActivity(definition, pose, base, s, alpha)
-                drawLegs(definition, pose, base, s, cache, alpha)
-                drawTorso(definition, base, s, cache, alpha)
-                drawArms(definition, pose, base, s, cache, alpha)
-                drawHead(definition, pose, base, s, cache, alpha)
+                if (definition.species == Species.BLOB || definition.species == Species.ROBOT) {
+                    drawOriginalSilhouette(definition, pose, base, s, cache, alpha)
+                } else {
+                    drawLegs(definition, pose, base, s, cache, alpha)
+                    drawTorso(definition, base, s, cache, alpha)
+                    drawArms(definition, pose, base, s, cache, alpha)
+                    drawHead(definition, pose, base, s, cache, alpha)
+                }
                 drawFrontActivity(definition, pose, base, s, alpha)
                 drawEffects(pose, base, s, alpha)
             }
         }
     }
+}
+
+/** Distinct thumbnail/fallback silhouettes matching the GLB cast, not recoloured people. */
+private fun DrawScope.drawOriginalSilhouette(d: CharacterDefinition, p: CharacterPose, b: Offset, s: Float, c: RenderCache, a: Float) {
+    val robot = d.species == Species.ROBOT
+    if (robot) {
+        drawLegs(d, p, b, s, c, a)
+        drawRoundRect(c.body, Offset(b.x - .19f * s, b.y - .43f * s), Size(.38f * s, .31f * s), CornerRadius(.06f * s), alpha = a)
+        drawArms(d, p, b, s, c, a)
+        drawRoundRect(d.palette.belly.copy(alpha = a), Offset(b.x - .32f * s, b.y - .82f * s), Size(.64f * s, .46f * s), CornerRadius(.09f * s))
+        drawRoundRect(d.palette.bodyBottom.copy(alpha = a), Offset(b.x - .27f * s, b.y - .77f * s), Size(.54f * s, .34f * s), CornerRadius(.07f * s))
+        drawRoundRect(Color(0xFF132B31).copy(alpha = a), Offset(b.x - .23f * s, b.y - .73f * s), Size(.46f * s, .26f * s), CornerRadius(.05f * s))
+        drawLine(d.palette.bodyBottom.copy(alpha = a), Offset(b.x + .12f * s, b.y - .81f * s), Offset(b.x + .16f * s, b.y - .94f * s), .018f * s)
+        drawCircle(d.palette.accent.copy(alpha = a), .04f * s, Offset(b.x + .16f * s, b.y - .94f * s))
+        drawRoundRect(Color(0xFF132B31).copy(alpha = a), Offset(b.x - .12f * s, b.y - .29f * s), Size(.24f * s, .025f * s), CornerRadius(.01f * s))
+    } else {
+        val puddle = if (p.eyeLid > .5f) .26f else 0f
+        drawOval(c.body, Offset(b.x - (.31f + puddle) * s, b.y - (.68f - puddle) * s), Size((.62f + 2 * puddle) * s, (.68f - puddle) * s), alpha = a)
+        drawOval(Color.White.copy(alpha = .25f * a), Offset(b.x - .18f * s, b.y - .59f * s), Size(.12f * s, .2f * s))
+        for (sign in listOf(-1, 1)) {
+            drawOval(d.palette.bodyBottom.copy(alpha = a), Offset(b.x + sign * .24f * s - .10f * s, b.y - .07f * s), Size(.2f * s, .10f * s))
+            val lift = if (sign < 0) p.armLeft else p.armRight
+            drawCircle(d.palette.bodyTop.copy(alpha = a), .065f * s, Offset(b.x + sign * .38f * s, b.y - (.29f + lift * .2f) * s))
+        }
+    }
+    val faceY = b.y - (if (robot) .61f else .43f) * s
+    val eyeHeight = (.07f * (1f - p.blink) * (1f - p.eyeLid)).coerceAtLeast(.012f) * s
+    for (sign in listOf(-1, 1)) {
+        val x = b.x + sign * .105f * s
+        if (robot) {
+            drawRoundRect(d.palette.accent.copy(alpha = a), Offset(x - .035f * s, faceY - eyeHeight / 2), Size(.07f * s, eyeHeight), CornerRadius(.015f * s))
+        } else {
+            drawOval(Color.White.copy(alpha = a), Offset(x - .055f * s, faceY - eyeHeight / 2), Size(.11f * s, eyeHeight * 1.5f))
+            drawCircle(d.palette.pupil.copy(alpha = a), .025f * s, Offset(x + p.lookX * .018f * s, faceY + .012f * s))
+            drawOval(d.palette.accent.copy(alpha = .65f * a), Offset(x - .04f * s, faceY + .065f * s), Size(.08f * s, .025f * s))
+        }
+    }
+    drawArc((if (robot) d.palette.accent else d.palette.pupil).copy(alpha = a), 0f, 180f, false,
+        Offset(b.x - .06f * s, faceY + .04f * s), Size(.12f * s, (.05f + p.mouthOpen * .09f) * s), style = Stroke(.018f * s))
 }
 
 private fun DrawScope.drawBackActivity(definition: CharacterDefinition, pose: CharacterPose, base: Offset, s: Float, alpha: Float) {

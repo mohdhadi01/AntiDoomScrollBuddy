@@ -57,7 +57,7 @@ fun HomeScreen(
         ?: remember { kotlinx.coroutines.flow.MutableStateFlow(com.doombuddy.monitor.MonitorService.DebugState()) })
         .collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
-    val character = CharacterRoster.byId(prefsState?.characterId ?: "melt")
+    val character = CharacterRoster.byId(prefsState?.characterId ?: CharacterRoster.DEFAULT_ID)
     val mood = dayMoodFor(usage.totalMs)
     val serviceAlive = com.doombuddy.monitor.MonitorService.instance != null
 

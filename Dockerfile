@@ -6,7 +6,7 @@ ENV ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT} \
     PATH=${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/platform-tools:${PATH}
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl unzip git ca-certificates \
+    && apt-get install -y --no-install-recommends curl unzip git ca-certificates make python3 \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p "${ANDROID_SDK_ROOT}/cmdline-tools" \
     && curl -fsSL -o /tmp/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip \
@@ -21,6 +21,8 @@ COPY . .
 
 # The image build is the dependency-provisioning step. Subsequent container runs use
 # the warmed Gradle cache and the offline Makefile commands.
-RUN chmod +x ./gradlew && ./gradlew :app:assembleDebug
+RUN chmod +x ./gradlew \
+    && python3 tools/generate_characters.py --check \
+    && ./gradlew :app:assembleDebug :app:testDebugUnitTest
 
-CMD ["./gradlew", ":app:assembleDebug", "--offline"]
+CMD ["make", "test"]

@@ -8,6 +8,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import com.doombuddy.character.CharacterDefinition
+import com.doombuddy.character.CharacterPerformance
 import com.doombuddy.character.CharacterDirector
 import com.doombuddy.character.Entrance
 import com.doombuddy.character.MouthShape
@@ -31,18 +32,27 @@ fun AnimatedCharacter(
     animated: Boolean = true,
     useLive3d: Boolean = false,
     onPoke: () -> Unit = {},
+    performance: CharacterPerformance? = null,
+    celebration: Boolean = false,
 ) {
     if (definition.modelAsset != null) {
-        if (!animated || !useLive3d) {
+        if (!animated) {
             MiniCharacterPortrait(definition, modifier)
         } else {
-            val liveModifier = if (interactive) {
-                modifier.pointerInput(definition.id) {
-                    detectTapGestures { onPoke() }
-                }
-            } else modifier
-            MiniCharacter3D(definition, liveModifier, moodLevel, onPoke, useLive3d = true)
+            MiniCharacter3D(
+                definition, modifier, moodLevel, onPoke,
+                useLive3d = useLive3d, performance = performance,
+                celebration = celebration, interactive = interactive,
+            )
         }
+        return
+    }
+    // Explicit previews use the same finite performance policy even without a GLB.
+    if (animated && (performance != null || celebration)) {
+        MiniCharacter3D(
+            definition, modifier, moodLevel, onPoke,
+            performance = performance, celebration = celebration, interactive = interactive,
+        )
         return
     }
     // Static mode: fixed cute pose, ZERO animation loops. Pickers/rosters render many

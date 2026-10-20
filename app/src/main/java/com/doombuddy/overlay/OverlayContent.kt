@@ -29,6 +29,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -48,7 +50,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.doombuddy.character.CharacterPose
-import com.doombuddy.character.characterDraw
 import com.doombuddy.data.TimerMode
 import com.doombuddy.ui.components.MiniCharacter3D
 import kotlinx.coroutines.launch
@@ -255,8 +256,12 @@ private fun HoldableBuddy(
     val ringSize = (90 * scale).dp
     val boxW = (98 * scale).dp
     val boxH = (88 * scale).dp
-    var holding by remember { mutableStateOf(false) }
-    var completed by remember { mutableStateOf(false) }
+    var holding by remember(character.id) { mutableStateOf(false) }
+    var completed by remember(character.id) { mutableStateOf(false) }
+    var pokeToken by remember(character.id) { mutableStateOf(0L) }
+    val directorCelebrating by remember(director) {
+        derivedStateOf { director?.pose?.effects?.confetti == true }
+    }
     // pointerInput is keyed only by hold duration, so callbacks must read the
     // latest gesture state rather than a value captured at composition time.
     val latestHolding = rememberUpdatedState(holding)
@@ -288,40 +293,34 @@ private fun HoldableBuddy(
             modifier = Modifier.align(Alignment.Center),
         )
 
-        // The buddy itself; whole area is the hold target. The pose lambda has a
-        // static fallback so the character ALWAYS renders even if the animation
-        // loop hasn't ticked yet (or is wedged) — never an invisible buddy.
+        // One gesture target contains the stage. A sibling AndroidView above this
+        // target would steal taps/holds. Director alpha is authoritative: a deliberately
+        // hidden pose must never be replaced with an opaque "fallback" buddy.
         Box(
             modifier = Modifier
                 .size(buddySize)
-                .then(
-                    if (character.modelAsset == null) {
-                        Modifier.characterDraw(character) {
-                            director?.pose?.takeIf { it.alpha > 0.02f }
-                                ?: CharacterPose(alpha = 1f, accessory = state.accessory)
-                        }
-                    } else Modifier
-                )
-                .pointerInput(state.holdDurationMs) {
+                .pointerInput(character.id, director, state.holdDurationMs) {
                     detectTapGestures(
                         onPress = {
+                            if (latestCompleted.value) return@detectTapGestures
                             holding = true
                             completed = false
                             controller.onHoldStart?.invoke()
                             director?.onHoldStart()
                             try {
-                                awaitRelease()
-                            } catch (_: Exception) {
-                                // dragged away — treat as early release
-                            }
-                            if (!latestCompleted.value) {
-                                holding = false
-                                controller.onHoldRelease?.invoke()
-                                director?.onHoldRelease()
+                                tryAwaitRelease()
+                            } finally {
+                                if (!latestCompleted.value) {
+                                    holding = false
+                                    controller.onHoldRelease?.invoke()
+                                    director?.onHoldRelease()
+                                }
                             }
                         },
                         onTap = {
                             // A tap NEVER dismisses (spec §33) — it pokes.
+                            if (latestCompleted.value) return@detectTapGestures
+                            pokeToken++
                             controller.onPoke?.invoke()
                             director?.let { d ->
                                 scope.launch { d.react(com.doombuddy.character.CharacterDirector.Reaction.JUMP) }
@@ -329,9 +328,26 @@ private fun HoldableBuddy(
                         },
                     )
                 },
-        )
-        if (character.modelAsset != null) {
-            MiniCharacter3D(character, Modifier.matchParentSize(), state.moodLevel, useLive3d = true)
+        ) {
+            MiniCharacter3D(
+                definition = character,
+                modifier = Modifier.matchParentSize().graphicsLayer {
+                    val pose = director?.pose ?: CharacterPose(alpha = 1f, accessory = state.accessory)
+                    alpha = pose.alpha.coerceIn(0f, 1f)
+                    scaleX = pose.scaleX
+                    scaleY = pose.scaleY
+                    translationX = pose.offsetX * size.width
+                    translationY = pose.offsetY * size.height
+                    rotationZ = pose.rotation
+                },
+                moodLevel = state.moodLevel,
+                useLive3d = true,
+                pokeToken = pokeToken,
+                holding = holding && !completed,
+                dismissing = completed || (director != null && !director.isShown),
+                celebration = state.celebration || directorCelebrating,
+                interactive = false,
+            )
         }
 
         AnimatedVisibility(

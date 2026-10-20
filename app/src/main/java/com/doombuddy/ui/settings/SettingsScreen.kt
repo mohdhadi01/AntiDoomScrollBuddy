@@ -49,10 +49,9 @@ import com.doombuddy.data.TimerMode
 import com.doombuddy.monitor.MonitorService
 import com.doombuddy.session.Intensity
 import com.doombuddy.ui.components.AnimatedCharacter
+import com.doombuddy.ui.components.CharacterStudio
 import com.doombuddy.ui.onboarding.KnownApps
 import kotlinx.coroutines.launch
-
-private val LaunchCharacters = CharacterRoster.ALL
 
 @Composable
 fun SettingsScreen(prefs: PrefsRepository, onBack: () -> Unit) {
@@ -80,34 +79,7 @@ fun SettingsScreen(prefs: PrefsRepository, onBack: () -> Unit) {
             Spacer(Modifier.height(4.dp))
 
             SettingsCard("YOUR BUDDY", "Choose the little personality that follows your scroll.") {
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(horizontal = 2.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    items(LaunchCharacters, key = { it.id }) { character ->
-                        val chosen = character.id == s.characterId
-                        Card(
-                            onClick = { scope.launch { prefs.setCharacter(character.id) } },
-                            modifier = Modifier.width(112.dp),
-                            shape = MaterialTheme.shapes.medium,
-                            colors = CardDefaults.cardColors(
-                                containerColor = if (chosen) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                            ),
-                        ) {
-                            Column(Modifier.fillMaxWidth().padding(vertical = 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                AnimatedCharacter(character, Modifier.width(72.dp).height(66.dp), animated = false)
-                                Spacer(Modifier.height(4.dp))
-                                Text(
-                                    character.displayName,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = if (chosen) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
-                                )
-                                if (chosen) Text("SELECTED", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
-                            }
-                        }
-                    }
-                }
+                CharacterStudio(s.characterId) { id -> scope.launch { prefs.setCharacter(id) } }
             }
 
             SettingsCard("HOW MUCH BUDDY?", "Set the energy, then choose when the first check-in lands.") {
@@ -206,7 +178,7 @@ fun SettingsScreen(prefs: PrefsRepository, onBack: () -> Unit) {
                         Modifier.align(Alignment.Center).offset(offX, offY).width(70.dp).height(62.dp),
                         entrance = com.doombuddy.character.Entrance.POP,
                         interactive = false,
-                        useLive3d = true,
+                        animated = false,
                     )
                 }
                 Spacer(Modifier.height(12.dp))

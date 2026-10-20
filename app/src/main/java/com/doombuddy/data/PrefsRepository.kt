@@ -21,7 +21,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 
 data class UserPreferences(
     val onboardingDone: Boolean = false,
-    val characterId: String = "melt",
+    val characterId: String = CharacterRoster.DEFAULT_ID,
     val intensity: Intensity = Intensity.PLAYFUL,
     val firstThresholdMinutes: Int = 5,
     val targetApps: Set<String> = defaultTargetApps(),
@@ -89,7 +89,7 @@ class PrefsRepository(private val context: Context) {
     val preferences: Flow<UserPreferences> = context.dataStore.data.map { p ->
         UserPreferences(
             onboardingDone = p[Keys.ONBOARDING_DONE] ?: false,
-            characterId = p[Keys.CHARACTER] ?: "melt",
+            characterId = p[Keys.CHARACTER] ?: CharacterRoster.DEFAULT_ID,
             intensity = Intensity.fromIndex(p[Keys.INTENSITY] ?: 1),
             firstThresholdMinutes = p[Keys.FIRST_THRESHOLD] ?: 5,
             targetApps = p[Keys.TARGET_APPS] ?: defaultTargetApps(),

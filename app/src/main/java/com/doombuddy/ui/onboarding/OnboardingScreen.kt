@@ -70,15 +70,13 @@ import com.doombuddy.data.defaultTargetApps
 import com.doombuddy.monitor.MonitorService
 import com.doombuddy.session.Intensity
 import com.doombuddy.ui.components.AnimatedCharacter
+import com.doombuddy.ui.components.CharacterStudio
 import com.doombuddy.ui.onboarding.KnownApps
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 private const val STEPS = 8
-
-/** The launch trio: every new buddy can be picked here without a hidden roster. */
-private val LaunchCharacters = CharacterRoster.ALL
 
 @Composable
 fun OnboardingScreen(prefs: PrefsRepository, onDone: () -> Unit) {
@@ -167,7 +165,7 @@ private fun IntroStep(onNext: () -> Unit) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("AWARENESS, WITH PERSONALITY", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.height(14.dp))
-                    AnimatedCharacter(CharacterRoster.MELT, Modifier.width(220.dp).height(220.dp), entrance = com.doombuddy.character.Entrance.POP, useLive3d = true)
+                    AnimatedCharacter(CharacterRoster.LOUI, Modifier.width(220.dp).height(220.dp), entrance = com.doombuddy.character.Entrance.POP, useLive3d = true)
                     Text("No guilt trips. Just a little nudge.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
@@ -214,139 +212,15 @@ private fun CharacterStep(prefs: PrefsRepository, onNext: () -> Unit) {
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val selected by prefs.preferences.collectAsState(initial = null)
     var chosenId by remember { mutableStateOf<String?>(null) }
-    val characterId = chosenId ?: selected?.characterId ?: "melt"
-    val character = CharacterRoster.byId(characterId)
+    val characterId = chosenId ?: selected?.characterId ?: CharacterRoster.DEFAULT_ID
 
-    StepScaffold(title = "Pick your buddy", subtitle = "Meet Fenn, the animated fox who interrupts your scroll.") {
-        Box(
-            Modifier.fillMaxWidth().heightIn(min = 360.dp).clip(MaterialTheme.shapes.extraLarge).background(MaterialTheme.colorScheme.surface),
-            contentAlignment = Alignment.Center,
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                HoldablePreviewBuddy(
-                    character = character,
-                    selectedId = characterId,
-                    onSelect = {
-                        chosenId = it
-                        scope.launch { prefs.setCharacter(it) }
-                    },
-                )
-                Spacer(Modifier.height(6.dp))
-                Text(character.displayName, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground)
-                Text("“${character.tagline}”", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    "tap to choose · hold to try the escape",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(10.dp))
-                // The launch roster is intentionally small and character-first.
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    contentPadding = PaddingValues(horizontal = 8.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    items(LaunchCharacters) { c ->
-                        val isChosen = c.id == characterId
-                        Card(
-                            onClick = {
-                                chosenId = c.id
-                                scope.launch { prefs.setCharacter(c.id) }
-                            },
-                            shape = RoundedCornerShape(18.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = if (isChosen) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
-                            ),
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.padding(10.dp),
-                            ) {
-                                AnimatedCharacter(
-                                    c,
-                                    Modifier.width(76.dp).height(66.dp),
-                                    animated = false,
-                                )
-                                Spacer(Modifier.height(4.dp))
-                                Text(
-                                    c.displayName,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = if (isChosen) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+    StepScaffold(title = "Pick your accomplice", subtitle = "An intern, a robot, a dramatic blob… and one suspicious fox. Try their acts.") {
+        CharacterStudio(characterId) { id ->
+            chosenId = id
+            scope.launch { prefs.setCharacter(id) }
         }
         Button(onClick = onNext, modifier = Modifier.fillMaxWidth().height(54.dp), shape = RoundedCornerShape(16.dp)) {
             Text("This one. Definitely this one.")
-        }
-    }
-}
-
-/**
- * The picker IS the product demo (spec §21): the buddy with its hold ring. Tapping
- * previews the character; completing a hold triggers the same escape the real
- * overlay performs (character reacts, ring completes).
- */
-@Composable
-private fun HoldablePreviewBuddy(
-    character: com.doombuddy.character.CharacterDefinition,
-    selectedId: String,
-    onSelect: (String) -> Unit,
-) {
-    val scope = androidx.compose.runtime.rememberCoroutineScope()
-    var holding by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-    var escaped by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-    val ringProgress by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (holding) 1f else 0f,
-        animationSpec = if (holding) {
-            androidx.compose.animation.core.tween(durationMillis = 1200, easing = androidx.compose.animation.core.LinearEasing)
-        } else {
-            androidx.compose.animation.core.tween(durationMillis = 130)
-        },
-        finishedListener = { if (it >= 1f && holding) escaped = true },
-    )
-
-    Box(contentAlignment = Alignment.Center) {
-        com.doombuddy.ui.components.HoldRing(progress = ringProgress, modifier = Modifier.matchParentSize())
-        AnimatedCharacter(
-            definition = character,
-            modifier = Modifier
-                .width(200.dp)
-                .height(180.dp)
-                .pointerInput(character.id) {
-                    detectTapGestures(
-                        onPress = {
-                            holding = true
-                            try { awaitRelease() } catch (_: Exception) {}
-                            if (ringProgress < 1f) holding = false
-                        },
-                        onTap = {
-                            if (selectedId != character.id) onSelect(character.id)
-                        },
-                    )
-            },
-            entrance = com.doombuddy.character.Entrance.PORTAL,
-            moodLevel = if (selectedId == character.id) 2 else 0,
-            useLive3d = true,
-        )
-        if (escaped) {
-            Text(
-                "escaped ✓  (in the real app, the buddy leaves — the timer keeps running)",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.align(Alignment.BottomCenter),
-            )
-        }
-    }
-    // reset the escape demo shortly after it completes
-    androidx.compose.runtime.LaunchedEffect(escaped) {
-        if (escaped) {
-            kotlinx.coroutines.delay(2200)
-            escaped = false
         }
     }
 }
@@ -444,7 +318,7 @@ private fun StyleStep(prefs: PrefsRepository, onNext: () -> Unit) {
 
             // LIVE PREVIEW: this is what the chosen style's intervention looks like
             // (spec §62 — the user should SEE the style, not read about it).
-            val previewCharacter = CharacterRoster.byId(prefsState?.characterId ?: "melt")
+            val previewCharacter = CharacterRoster.byId(prefsState?.characterId ?: CharacterRoster.DEFAULT_ID)
             val sampleLine = remember(intensity, previewCharacter.id) {
                 previewCharacter.dialogue.forLevel(if (intensity == Intensity.CHILL) 1 else 2).first()
             }
@@ -696,7 +570,7 @@ private fun TestStep(prefs: PrefsRepository, onNext: () -> Unit) {
 private fun DoneStep(prefs: PrefsRepository, onDone: () -> Unit) {
     val context = LocalContext.current
     val prefsState by prefs.preferences.collectAsState(initial = null)
-    val doneCharacterId = prefsState?.characterId ?: "milo"
+    val doneCharacterId = prefsState?.characterId ?: CharacterRoster.DEFAULT_ID
     LaunchedEffect(Unit) {
         prefs.setOnboardingDone()
         MonitorService.start(context)

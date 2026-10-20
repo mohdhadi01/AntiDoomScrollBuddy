@@ -1,10 +1,11 @@
 # Asset licenses
 
-The shipped character experience uses one local animated fox GLB from Bake3D, plus original
-app UI, overlay composition, and copy authored in this repository.
+The shipped experience uses three original articulated GLBs plus the licensed fox from
+Bake3D. App UI, overlay composition, and character dialogue are authored in this repository.
 
 | Asset | Source | License | Commercial use |
 |---|---|---|---|
+| Loui, Buffer, Goop GLBs + generator | authored in `tools/generate_characters.py`; no third-party model content | permission notice in `assets/characters/ORIGINAL_CHARACTERS.md` | yes, retain notice |
 | Fenn fox GLB + fallback portrait | “Fox” by Bake3D | CC BY 4.0 | yes, with attribution |
 | Launcher / status icons | authored in-repo (`res/drawable`) | project license | yes |
 | Typefaces | system Android fonts (Roboto/Sans) | Apache-2.0 (bundled with Android) | yes |
