@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Instagram demo feed · DoomBuddy</title>
+  <style>
+    :root { color-scheme: light; font-family: Arial, Helvetica, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #fafafa; color: #171717; }
+    header { position: sticky; top: 0; z-index: 4; height: 74px; display: flex; align-items: center; justify-content: space-between; padding: 0 22px; background: rgba(255,255,255,.96); border-bottom: 1px solid #dedede; }
+    .wordmark { font-family: Georgia, serif; font-size: 31px; font-weight: 700; letter-spacing: -1px; }
+    .icons { display: flex; gap: 19px; font-size: 25px; }
+    main { max-width: 560px; margin: 0 auto; padding: 18px 16px 110px; }
+    .demo-banner { margin: 0 0 18px; padding: 15px 17px; border: 1px solid #d9e7a7; border-radius: 16px; background: #f3fad7; color: #45600a; font-size: 14px; font-weight: 700; line-height: 1.35; }
+    .stories { display: flex; gap: 18px; overflow: hidden; padding: 4px 0 20px; }
+    .story { min-width: 67px; text-align: center; font-size: 12px; }
+    .avatar { width: 58px; height: 58px; margin: auto auto 6px; display: grid; place-items: center; border-radius: 50%; color: #fff; font-weight: 800; background: linear-gradient(135deg, #feda75, #d62976 50%, #4f5bd5); border: 3px solid #fff; outline: 2px solid #d62976; }
+    .post { margin: 0 0 22px; overflow: hidden; background: #fff; border: 1px solid #dedede; border-radius: 12px; }
+    .post-head { display: flex; align-items: center; gap: 10px; padding: 12px; }
+    .mini { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; color: #fff; font-weight: 800; background: #839b34; }
+    .handle { flex: 1; font-size: 15px; font-weight: 700; }
+    .location { display: block; margin-top: 2px; color: #777; font-size: 12px; font-weight: 400; }
+    .more { font-size: 22px; }
+    .photo { height: 430px; display: grid; place-items: center; color: rgba(255,255,255,.93); font-size: 48px; font-weight: 800; letter-spacing: -2px; }
+    .photo.one { background: linear-gradient(135deg, #d8e9ff, #8aa8e7 45%, #3f5d9b); }
+    .photo.two { background: linear-gradient(135deg, #f2d1aa, #e58c7b 48%, #8e4d69); }
+    .photo.three { background: linear-gradient(135deg, #c7ed9b, #7bb77e 48%, #386a63); }
+    .photo span { padding: 20px 25px; border: 2px solid rgba(255,255,255,.72); border-radius: 20px; background: rgba(0,0,0,.13); }
+    .actions { display: flex; gap: 18px; padding: 12px 13px 5px; font-size: 26px; }
+    .save { margin-left: auto; }
+    .likes, .caption { padding: 3px 14px 0; font-size: 14px; line-height: 1.4; }
+    .caption { padding-bottom: 17px; }
+    .bottom { position: fixed; right: 0; bottom: 0; left: 0; z-index: 3; height: 62px; display: flex; justify-content: space-around; align-items: center; background: #fff; border-top: 1px solid #dedede; font-size: 24px; }
+  </style>
+</head>
+<body>
+  <header><div class="wordmark">instagram</div><div class="icons">♡　✉</div></header>
+  <main>
+    <div class="demo-banner">LIVE DOOMBUDDY DEMO · 1) SCROLL  2) BUDDY APPEARS  3) HOLD TO ESCAPE</div>
+    <div class="stories">
+      <div class="story"><div class="avatar">You</div>Your story</div>
+      <div class="story"><div class="avatar">A</div>alex</div>
+      <div class="story"><div class="avatar">M</div>maya</div>
+      <div class="story"><div class="avatar">R</div>rohan</div>
+      <div class="story"><div class="avatar">S</div>sam</div>
+    </div>
+    <article class="post"><div class="post-head"><div class="mini">A</div><div class="handle">aerial.notes<span class="location">Somewhere quiet</span></div><div class="more">···</div></div><div class="photo one"><span>slow morning</span></div><div class="actions">♡　♧　✈<span class="save">□</span></div><div class="likes"><strong>1,284 likes</strong></div><div class="caption"><strong>aerial.notes</strong> A little room to breathe is still progress.</div></article>
+    <article class="post"><div class="post-head"><div class="mini" style="background:#d06b55">M</div><div class="handle">maya.makes<span class="location">Today</span></div><div class="more">···</div></div><div class="photo two"><span>one more?</span></div><div class="actions">♡　♧　✈<span class="save">□</span></div><div class="likes"><strong>892 likes</strong></div><div class="caption"><strong>maya.makes</strong> The algorithm says keep going. Your buddy disagrees.</div></article>
+    <article class="post"><div class="post-head"><div class="mini" style="background:#3c8a63">R</div><div class="handle">rohan.runs<span class="location">For you</span></div><div class="more">···</div></div><div class="photo three"><span>touch grass</span></div><div class="actions">♡　♧　✈<span class="save">□</span></div><div class="likes"><strong>2,101 likes</strong></div><div class="caption"><strong>rohan.runs</strong> A tiny interruption can change the next hour.</div></article>
+  </main>
+  <nav class="bottom">⌂　⌕　⊕　♡　◎</nav>
+</body>
+</html>

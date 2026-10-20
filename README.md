@@ -25,9 +25,12 @@
 
 The repository includes a screen recording of the release app running on an Android emulator:
 
-**[▶ Open the 72-second DoomBuddy demo video](demo/doombuddy-demo.mp4)**
+**[▶ Open the 17-second quick Instagram-style demo](demo/doombuddy-instagram-quick.mp4)** ·
+**[Open the full 72-second product demo](demo/doombuddy-demo.mp4)**
 
-The demo shows the real product flow: onboarding, the cast picker, named performances, selected apps, transparent permission explanations, a live over-app intervention, hold-to-escape, and the daily dashboard.
+The quick demo makes the core action obvious in under a minute: **scroll the feed → the buddy appears above it → hold to escape**. The longer demo shows the complete product flow: onboarding, the cast picker, named performances, selected apps, transparent permission explanations, a live over-app intervention, hold-to-escape, and the daily dashboard.
+
+The feed in the quick demo is a local Instagram-style page at [`demo/instagram-feed.html`](demo/instagram-feed.html). It is intentionally self-contained, so the recording does not depend on a login, an external account, or network access.
 
 ## ✨ What DoomBuddy does
 
@@ -215,6 +218,8 @@ app/src/test/                      Offline unit and regression tests
 docs/                               Product, architecture, privacy, and release notes
 tools/generate_characters.py       Deterministic original asset generator
 demo/doombuddy-demo.mp4            Screen recording of the running release app
+demo/doombuddy-instagram-quick.mp4 Quick feed → intervention → hold demo
+demo/instagram-feed.html            Offline Instagram-style demo feed
 Dockerfile                         Clean Linux build/test environment
 Makefile                           Single reproducible test/build entry point
 ```
@@ -227,7 +232,8 @@ The pinned Filament 1.51 native libraries trigger Android’s 16 KB page-size co
 
 - **Project:** AntiDoomScrollBuddy / DoomBuddy
 - **Repository:** [github.com/mohdhadi01/AntiDoomScrollBuddy](https://github.com/mohdhadi01/AntiDoomScrollBuddy)
-- **Demo:** [`demo/doombuddy-demo.mp4`](demo/doombuddy-demo.mp4)
+- **Quick demo:** [`demo/doombuddy-instagram-quick.mp4`](demo/doombuddy-instagram-quick.mp4)
+- **Full demo:** [`demo/doombuddy-demo.mp4`](demo/doombuddy-demo.mp4)
 - **Build status:** reproducible Android build, pinned toolchain, lockfiles, Dockerfile, and offline test command included
 
 Built during the OmniRush Frontier Buildathon 2026 with OmniRush as the project’s generative AI tool.
