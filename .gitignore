@@ -8,4 +8,5 @@ keystore.properties
 *.keystore
 *.jks
 .agent_screens/
+doombuddy-startup.log
 .DS_Store
