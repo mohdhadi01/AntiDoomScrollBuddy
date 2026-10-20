@@ -37,7 +37,10 @@ class MiniCharacterView(
     private val modelAsset: String,
     private val onFailure: (Throwable) -> Unit,
 ) : FrameLayout(context) {
-    private val texture = TextureView(context).apply { isOpaque = false; setBackgroundColor(AndroidColor.TRANSPARENT) }
+    private val texture = TextureView(context).apply {
+        // TextureView rejects background drawables, including transparent colours.
+        isOpaque = false
+    }
     private var viewer: ModelViewer? = null
     private var frameCallback: android.view.Choreographer.FrameCallback? = null
     private var actionIndex = 0
