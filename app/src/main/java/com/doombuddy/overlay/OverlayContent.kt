@@ -12,6 +12,8 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -35,7 +38,9 @@ import kotlinx.coroutines.CoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontFamily
@@ -54,14 +59,13 @@ import java.util.concurrent.TimeUnit
 /**
  * Root of the persistent intervention overlay (spec §42):
  *
- *   [ quiet live badge + app-independent session/today timer ]
- *   [ large measured character stage ]
- *   [ optional spoken line + hold affordance ]
+ *   [ one connected speech bubble: line + live/session/today status ]
+ *   [ character visually tucked under the bubble tail ]
  *
- * This is intentionally a transparent character stage rather than a widget/card. The
- * character is the first read; the timer is a quiet caption that keeps the intervention
- * useful without competing with the performance. The window remains a stable measured
- * stage so animation cannot resize or clip the overlay.
+ * The stage is transparent, but the bubble is deliberately one connected visual unit:
+ * the buddy looks like it is speaking, and timing is part of the same little scene rather
+ * than a second floating HUD. The window remains a stable measured stage so animation
+ * cannot resize or clip the overlay.
  */
 @Composable
 fun OverlayRoot(controller: OverlayController) {
@@ -70,73 +74,133 @@ fun OverlayRoot(controller: OverlayController) {
     val director = controller.director
     val scope = rememberCoroutineScope()
     val u = state.uiScale.coerceIn(0.82f, 1.06f)
-    val stageWidth = (218 * u).dp
-    val stageHeight = (246 * u).dp
+    val stageWidth = (224 * u).dp
+    val stageHeight = (252 * u).dp
+    // Use the brighter body tone for the speech treatment so every character keeps
+    // a readable, high-energy accent (Fenn's brown accent is intentionally darker).
+    val bubbleAccent = character.palette.bodyTop.copy(alpha = 0.98f)
+    val speechLine = overlaySpeechLine(state.dialogueLine, character.displayName)
 
-    Column(
+    Box(
         modifier = Modifier
             .width(stageWidth)
             .height(stageHeight),
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(
+        SpeechBubble(
             modifier = Modifier
-                .width((192 * u).dp)
-                .height((38 * u).dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            AnimatedContent(
-                targetState = state.dialogueLine.orEmpty(),
-                transitionSpec = {
-                    (slideInVertically(tween(220)) { it / 2 } + fadeIn(tween(220))) togetherWith
-                        (slideOutVertically(tween(160)) { -it / 2 } + fadeOut(tween(120)))
-                },
-                label = "buddyDialogue",
-            ) { line ->
-                if (line.isNotBlank()) {
-                    Text(
-                        text = line,
-                        modifier = Modifier.padding(horizontal = (8 * u).dp),
-                        color = Color(0xFFF7FAFC),
-                        fontSize = (13 * u).sp,
-                        lineHeight = (14 * u).sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        style = whisperTextStyle,
-                    )
-                }
-            }
-        }
+                .align(Alignment.TopCenter)
+                .width((204 * u).dp)
+                .height((126 * u).dp),
+            accent = bubbleAccent,
+            scale = u,
+            line = speechLine,
+            timerMode = state.timerMode,
+            sessionMs = state.sessionMs,
+            todayMs = state.todayMs,
+            cycleSeconds = state.cycleSeconds,
+            onCycleFlip = { director?.lookAtTimer() },
+        )
 
         HoldableBuddy(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = (2 * u).dp),
             state = state,
             director = director,
             controller = controller,
             scope = scope,
             scale = u,
         )
-
-        BuddyTimerCard(
-            mode = state.timerMode,
-            sessionMs = state.sessionMs,
-            todayMs = state.todayMs,
-            cycleSeconds = state.cycleSeconds,
-            scale = u,
-            onCycleFlip = { director?.lookAtTimer() },
-        )
-
-        Spacer(Modifier.height((3 * u).dp))
-        Text(
-            text = if (state.dialogueLine == null) "tap me · hold to bounce" else "hold to bounce",
-            color = Color.White.copy(alpha = 0.58f),
-            fontSize = (8 * u).sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 0.8.sp,
-            style = whisperTextStyle,
-        )
     }
 }
+
+@Composable
+private fun SpeechBubble(
+    modifier: Modifier,
+    accent: Color,
+    scale: Float,
+    line: String,
+    timerMode: TimerMode,
+    sessionMs: Long,
+    todayMs: Long,
+    cycleSeconds: Int,
+    onCycleFlip: () -> Unit,
+) {
+    val shape = RoundedCornerShape((26 * scale).dp)
+    Box(
+        modifier = modifier
+            .background(Color(0xE91C2330), shape)
+            .border((1.5f * scale).dp, accent.copy(alpha = 0.8f), shape)
+            .drawBehind {
+                val tailCenter = size.width * 0.5f
+                val tailTop = size.height - 2.dp.toPx()
+                val tail = Path().apply {
+                    moveTo(tailCenter - 14.dp.toPx(), tailTop)
+                    lineTo(tailCenter, tailTop + 18.dp.toPx())
+                    lineTo(tailCenter + 14.dp.toPx(), tailTop)
+                    close()
+                }
+                drawPath(tail, Color(0xE91C2330))
+                drawPath(tail, accent.copy(alpha = 0.8f), style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.5f.dp.toPx()))
+            }
+            .padding(horizontal = (16 * scale).dp, vertical = (12 * scale).dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            AnimatedContent(
+                targetState = line,
+                transitionSpec = {
+                    (slideInVertically(tween(240)) { it / 2 } + fadeIn(tween(240))) togetherWith
+                        (slideOutVertically(tween(170)) { -it / 2 } + fadeOut(tween(130)))
+                },
+                label = "buddyDialogue",
+            ) { currentLine ->
+                Text(
+                    text = currentLine,
+                    color = accent,
+                    fontSize = (19 * scale).sp,
+                    lineHeight = (20 * scale).sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Cursive,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    style = bubbleTextStyle,
+                )
+            }
+            Spacer(Modifier.height((8 * scale).dp))
+            BuddyTimerCard(
+                mode = timerMode,
+                sessionMs = sessionMs,
+                todayMs = todayMs,
+                cycleSeconds = cycleSeconds,
+                scale = scale,
+                accent = accent,
+                onCycleFlip = onCycleFlip,
+            )
+            Spacer(Modifier.height((4 * scale).dp))
+            Text(
+                text = "tap me  ·  hold to bounce",
+                color = Color.White.copy(alpha = 0.62f),
+                fontSize = (8 * scale).sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.8.sp,
+                style = whisperTextStyle,
+            )
+        }
+    }
+}
+
+internal fun overlaySpeechLine(dialogueLine: String?, characterName: String): String =
+    dialogueLine?.takeIf { it.isNotBlank() } ?: when (characterName.lowercase()) {
+        "goop" -> "still scrolling? be so for real."
+        "buffer" -> "your feed is buffering your life."
+        "loui" -> "this scroll could've been an email."
+        "fenn" -> "one more scroll? iconic."
+        else -> "still here?"
+    }
 
 // ---------------------------------------------------------------- timer whisper
 
@@ -148,17 +212,18 @@ fun BuddyTimerCard(
     cycleSeconds: Int,
     showLabels: Boolean = true,
     scale: Float = 1f,
+    accent: Color = sessionAccent,
     onCycleFlip: () -> Unit = {},
 ) {
     val ts = (15 * scale).sp
     when (mode) {
         TimerMode.SESSION_ONLY ->
-            TimerView("LIVE", formatSession(sessionMs), sessionAccent, valueSize = ts)
+            TimerView("LIVE", formatSession(sessionMs), accent, valueSize = ts)
         TimerMode.STACKED -> Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
-            TimerView("LIVE", formatSession(sessionMs), sessionAccent, valueSize = ts)
+            TimerView("LIVE", formatSession(sessionMs), accent, valueSize = ts)
             TimerSeparator(scale)
             TimerView("TODAY", formatToday(todayMs), todayAccent, valueSize = ts)
         }
@@ -175,7 +240,7 @@ fun BuddyTimerCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
             ) {
-                TimerView("LIVE", formatSession(sessionMs), sessionAccent, valueSize = ts)
+                TimerView("LIVE", formatSession(sessionMs), accent, valueSize = ts)
                 TimerSeparator(scale)
                 AnimatedContent(
                     targetState = showToday,
@@ -189,7 +254,7 @@ fun BuddyTimerCard(
                     TimerView(
                         if (today) "TODAY" else "NOW",
                         if (today) formatToday(todayMs) else "scrolling",
-                        if (today) todayAccent else Color.White.copy(alpha = 0.72f),
+                        if (today) accent else Color.White.copy(alpha = 0.72f),
                         valueSize = if (today) ts else (10 * scale).sp,
                     )
                 }
@@ -244,6 +309,14 @@ private val whisperTextStyle = TextStyle(
     ),
 )
 
+private val bubbleTextStyle = TextStyle(
+    shadow = androidx.compose.ui.graphics.Shadow(
+        color = Color.Black.copy(alpha = 0.5f),
+        offset = Offset(0f, 2f),
+        blurRadius = 3f,
+    ),
+)
+
 private val sessionAccent = Color(0xFF7CC7FF)
 private val todayAccent = Color(0xFFC6F24E)
 
@@ -268,6 +341,7 @@ internal fun formatToday(ms: Long): String {
  */
 @Composable
 private fun HoldableBuddy(
+    modifier: Modifier = Modifier,
     state: OverlayUiState,
     director: com.doombuddy.character.CharacterDirector?,
     controller: OverlayController,
@@ -304,7 +378,7 @@ private fun HoldableBuddy(
     )
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(boxSize),
         contentAlignment = Alignment.Center,
     ) {
