@@ -9,6 +9,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -68,8 +70,8 @@ fun OverlayRoot(controller: OverlayController) {
     val director = controller.director
     val scope = rememberCoroutineScope()
     val u = state.uiScale.coerceIn(0.82f, 1.06f)
-    val stageWidth = (210 * u).dp
-    val stageHeight = (250 * u).dp
+    val stageWidth = (218 * u).dp
+    val stageHeight = (246 * u).dp
 
     Column(
         modifier = Modifier
@@ -77,22 +79,34 @@ fun OverlayRoot(controller: OverlayController) {
             .height(stageHeight),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (state.dialogueLine != null) {
-            Text(
-                state.dialogueLine,
-                modifier = Modifier
-                    .width((150 * u).dp)
-                    .padding(horizontal = (4 * u).dp),
-                color = Color(0xFFF2F5F7),
-                fontSize = (10 * u).sp,
-                lineHeight = (12 * u).sp,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-                style = whisperTextStyle,
-            )
-        } else {
-            Spacer(Modifier.height((18 * u).dp))
+        Box(
+            modifier = Modifier
+                .width((192 * u).dp)
+                .height((38 * u).dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            AnimatedContent(
+                targetState = state.dialogueLine.orEmpty(),
+                transitionSpec = {
+                    (slideInVertically(tween(220)) { it / 2 } + fadeIn(tween(220))) togetherWith
+                        (slideOutVertically(tween(160)) { -it / 2 } + fadeOut(tween(120)))
+                },
+                label = "buddyDialogue",
+            ) { line ->
+                if (line.isNotBlank()) {
+                    Text(
+                        text = line,
+                        modifier = Modifier.padding(horizontal = (8 * u).dp),
+                        color = Color(0xFFF7FAFC),
+                        fontSize = (13 * u).sp,
+                        lineHeight = (14 * u).sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        style = whisperTextStyle,
+                    )
+                }
+            }
         }
 
         HoldableBuddy(
@@ -103,28 +117,24 @@ fun OverlayRoot(controller: OverlayController) {
             scale = u,
         )
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                "• LIVE",
-                color = Color(0xFFB9E86B).copy(alpha = 0.82f),
-                fontSize = (8 * u).sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 0.8.sp,
-                style = whisperTextStyle,
-            )
-            Spacer(Modifier.width((7 * u).dp))
-            BuddyTimerCard(
-                mode = state.timerMode,
-                sessionMs = state.sessionMs,
-                todayMs = state.todayMs,
-                cycleSeconds = state.cycleSeconds,
-                scale = u,
-                onCycleFlip = { director?.lookAtTimer() },
-            )
-        }
+        BuddyTimerCard(
+            mode = state.timerMode,
+            sessionMs = state.sessionMs,
+            todayMs = state.todayMs,
+            cycleSeconds = state.cycleSeconds,
+            scale = u,
+            onCycleFlip = { director?.lookAtTimer() },
+        )
+
+        Spacer(Modifier.height((3 * u).dp))
+        Text(
+            text = if (state.dialogueLine == null) "tap me · hold to bounce" else "hold to bounce",
+            color = Color.White.copy(alpha = 0.58f),
+            fontSize = (8 * u).sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 0.8.sp,
+            style = whisperTextStyle,
+        )
     }
 }
 
@@ -140,12 +150,16 @@ fun BuddyTimerCard(
     scale: Float = 1f,
     onCycleFlip: () -> Unit = {},
 ) {
-    val ts = (16 * scale).sp
+    val ts = (15 * scale).sp
     when (mode) {
-        TimerMode.SESSION_ONLY -> TimerView("SESSION", formatSession(sessionMs), sessionAccent, valueSize = ts)
-        TimerMode.STACKED -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            TimerView("SESSION", formatSession(sessionMs), sessionAccent, valueSize = ts)
-            Spacer(Modifier.height(4.dp))
+        TimerMode.SESSION_ONLY ->
+            TimerView("LIVE", formatSession(sessionMs), sessionAccent, valueSize = ts)
+        TimerMode.STACKED -> Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            TimerView("LIVE", formatSession(sessionMs), sessionAccent, valueSize = ts)
+            TimerSeparator(scale)
             TimerView("TODAY", formatToday(todayMs), todayAccent, valueSize = ts)
         }
         TimerMode.CYCLE -> {
@@ -157,23 +171,43 @@ fun BuddyTimerCard(
                     onCycleFlip()
                 }
             }
-            AnimatedContent(
-                targetState = showToday,
-                transitionSpec = {
-                    val dir = if (targetState) 1 else -1
-                    (slideInHorizontally(tween(300)) { it * dir } + fadeIn(tween(300))) togetherWith
-                        (slideOutHorizontally(tween(300)) { -it * dir } + fadeOut(tween(200)))
-                },
-                label = "timerCycle",
-            ) { today ->
-                if (today) {
-                    TimerView("TODAY", formatToday(todayMs), todayAccent, valueSize = ts)
-                } else {
-                    TimerView("SESSION", formatSession(sessionMs), sessionAccent, valueSize = ts)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                TimerView("LIVE", formatSession(sessionMs), sessionAccent, valueSize = ts)
+                TimerSeparator(scale)
+                AnimatedContent(
+                    targetState = showToday,
+                    transitionSpec = {
+                        val dir = if (targetState) 1 else -1
+                        (slideInHorizontally(tween(280)) { it * dir } + fadeIn(tween(240))) togetherWith
+                            (slideOutHorizontally(tween(280)) { -it * dir } + fadeOut(tween(160)))
+                    },
+                    label = "timerCycle",
+                ) { today ->
+                    TimerView(
+                        if (today) "TODAY" else "NOW",
+                        if (today) formatToday(todayMs) else "scrolling",
+                        if (today) todayAccent else Color.White.copy(alpha = 0.72f),
+                        valueSize = if (today) ts else (10 * scale).sp,
+                    )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun TimerSeparator(scale: Float) {
+    Text(
+        text = "·",
+        color = Color.White.copy(alpha = 0.5f),
+        fontSize = (12 * scale).sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(horizontal = (7 * scale).dp),
+        style = whisperTextStyle,
+    )
 }
 
 @Composable
@@ -182,7 +216,7 @@ private fun TimerView(label: String, value: String, accent: Color, showLabels: B
         if (showLabels) {
             Text(
                 text = label,
-                color = Color(0xFFE6ECF2).copy(alpha = 0.68f),
+                color = Color.White.copy(alpha = 0.62f),
                 fontSize = 7.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 1.2.sp,
